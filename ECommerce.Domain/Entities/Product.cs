@@ -82,11 +82,11 @@ public class Product : BaseEntity
 
     public void DeleteProduct()
     {
-        MarkAsDeleted();
+        MarkAsDeleted(Environment.UserName);
     }
 
     public void RestoreProduct()
     {
-        Restore(); 
+        Restore(Environment.UserName); 
     }
 }

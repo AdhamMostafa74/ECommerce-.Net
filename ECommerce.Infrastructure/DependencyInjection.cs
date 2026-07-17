@@ -1,8 +1,12 @@
-﻿using ECommerce.Infrastructure.Data.DbContexts;
+﻿using ECommerce.Application.Brands;
+using ECommerce.Application.Products;
+using ECommerce.Application.Types;
+using ECommerce.Infrastructure.Data.DbContexts;
 using ECommerce.Infrastructure.Presistence.DataSeeding;
 using ECommerce.Infrastructure.Presistence.DataSeeding.Data;
 using ECommerce.Infrastructure.Presistence.DataSeeding.Data.Models;
 using ECommerce.Infrastructure.Presistence.Interceptors;
+using ECommerce.Infrastructure.Presistence.Queries;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,6 +35,9 @@ public static class DependencyInjection
 
         services.AddScoped<IDataSeeder, ProductBrandSeeder>();
         services.AddScoped<IDataSeeder, ProductTypeSeeder>();
+        services.AddScoped<IProductQueryService, ProductQueryService>();
+        services.AddScoped<IBrandQueryService, BrandQueryService>();
+        services.AddScoped<ITypeQueryService, TypeQueryService>();
 
         services.AddScoped<DatabaseSeeder>();
         services.AddScoped<Interceptor>();
