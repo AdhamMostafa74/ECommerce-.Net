@@ -1,13 +1,17 @@
 ﻿using ECommerce.Application.Brands.DTOs;
+using ECommerce.Application.Common.Pagination;
+using ECommerce.Domain.Common.Results;
 
 namespace ECommerce.Application.Brands
 {
     public interface IBrandQueryService
     {
-        Task<IReadOnlyList<GetAllBrandsResponse>> GetAllBrandResponse(
+        Task<Result<PaginatedResult<GetAllBrandsResponse>>> GetAllBrandResponse(
+                PaginationRequest pagination,
+
             CancellationToken ct = default);
 
-        Task<GetByIdBrandResponse?> GetByIdBrandResponse(
+        Task<Result<GetByIdBrandResponse>> GetByIdBrandResponse(
             Guid id,
             CancellationToken ct = default);
     }

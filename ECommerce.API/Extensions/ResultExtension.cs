@@ -1,4 +1,5 @@
 ﻿using ECommerce.API.Responses;
+using ECommerce.Application.Common.Pagination;
 using ECommerce.Domain.Common;
 using ECommerce.Domain.Common.Results;
 
@@ -20,27 +21,87 @@ public static class ResultExtensions
             return Results.Ok(response);
         }
 
-   
+        var errorResponse = ApiResponse<T>.ApiFailure(
+            result.Error,
+            context);
 
         return result.Error.Type switch
         {
             ErrorType.NotFound =>
-                Results.NotFound(result.Error),
+                Results.NotFound(errorResponse),
 
             ErrorType.Validation =>
-                Results.BadRequest(result.Error),
-                 
+                Results.BadRequest(errorResponse),
+
             ErrorType.Conflict =>
-                Results.Conflict(result.Error),
+                Results.Conflict(errorResponse),
 
             ErrorType.Unauthorized =>
-                Results.Unauthorized(),
+                Results.Json(
+                    errorResponse,
+                    statusCode: StatusCodes.Status401Unauthorized),
 
             ErrorType.Forbidden =>
-                Results.Forbid(),
+                Results.Json(
+                    errorResponse,
+                    statusCode: StatusCodes.Status403Forbidden),
 
             _ =>
-                Results.Problem(result.Error.Description)
+                Results.Json(
+                    errorResponse,
+                    statusCode: StatusCodes.Status500InternalServerError)
+        };
+    }
+
+    public static IResult ToApiResult<T>(
+        this Result<PaginatedResult<T>> result,
+        HttpContext context)
+    {
+        if (result.IsSuccess)
+        {
+            var pagination = new PaginationMeta(
+                result.Value.PageNumber,
+                result.Value.PageSize,
+                result.Value.TotalCount);
+
+            var response = ApiResponse<IReadOnlyList<T>>.ApiSuccess(
+                result.Value.Items,
+                "Operation completed successfully.",
+                context,
+                pagination);
+
+            return Results.Ok(response);
+        }
+
+        var errorResponse = ApiResponse<IReadOnlyList<T>>.ApiFailure(
+            result.Error,
+            context);
+
+        return result.Error.Type switch
+        {
+            ErrorType.NotFound =>
+                Results.NotFound(errorResponse),
+
+            ErrorType.Validation =>
+                Results.BadRequest(errorResponse),
+
+            ErrorType.Conflict =>
+                Results.Conflict(errorResponse),
+
+            ErrorType.Unauthorized =>
+                Results.Json(
+                    errorResponse,
+                    statusCode: StatusCodes.Status401Unauthorized),
+
+            ErrorType.Forbidden =>
+                Results.Json(
+                    errorResponse,
+                    statusCode: StatusCodes.Status403Forbidden),
+
+            _ =>
+                Results.Json(
+                    errorResponse,
+                    statusCode: StatusCodes.Status500InternalServerError)
         };
     }
 }

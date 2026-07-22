@@ -1,4 +1,9 @@
-﻿using ECommerce.Application.Products;
+﻿using ECommerce.API.Extensions;
+using ECommerce.API.Responses;
+using ECommerce.Application.Common.Pagination;
+using ECommerce.Application.Products;
+using ECommerce.Application.Products.DTOs;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.API.Endpoints;
 
@@ -11,31 +16,38 @@ public static class ProductEndpoints
             .WithTags("Products");
 
         group.MapGet("/", async (
+           [AsParameters] PaginationRequest pagination,
             IProductQueryService productQueryService,
+            HttpContext context,
             CancellationToken ct) =>
         {
-            var products = await productQueryService.GetAllProductResponse(ct);
+            var response = await productQueryService.GetAllProductResponse(pagination, ct);
 
-            return Results.Ok(products);
+            return response.ToApiResult(context);
         })
         .WithName("GetProducts")
-        .WithSummary("Gets all products")
-        .WithDescription("Returns all products.");
+        .WithSummary("Retrieve all products")
+        .WithDescription("Returns a paginated list of available products.")
+        .Produces<ApiResponse<IReadOnlyList<GetAllProductResponse>>>(StatusCodes.Status200OK)
+        .Produces<ApiResponse<IReadOnlyList<GetAllProductResponse>>>(StatusCodes.Status500InternalServerError);
 
         group.MapGet("/{id:guid}", async (
             Guid id,
             IProductQueryService productQueryService,
+            HttpContext context,
             CancellationToken ct) =>
         {
-            var product = await productQueryService.GetByIdProductResponse(id, ct);
+            var response = await productQueryService.GetByIdProductResponse(id, ct);
 
-            return product is null
-                ? Results.NotFound()
-                : Results.Ok(product);
+            return response.ToApiResult(context);
         })
         .WithName("GetProductById")
-        .WithSummary("Gets a product by id")
-        .WithDescription("Returns the requested product.");
+        .WithSummary("Retrieve a product by ID")
+        .WithDescription("Returns the product matching the specified identifier.")
+        .Produces<ApiResponse<GetByIdProductResponse>>(StatusCodes.Status200OK)
+        .Produces<ApiResponse<GetByIdProductResponse>>(StatusCodes.Status400BadRequest)
+        .Produces<ApiResponse<GetByIdProductResponse>>(StatusCodes.Status404NotFound)
+        .Produces<ApiResponse<GetByIdProductResponse>>(StatusCodes.Status500InternalServerError);
 
         return endpoints;
     }

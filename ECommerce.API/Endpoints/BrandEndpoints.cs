@@ -1,41 +1,56 @@
-﻿using ECommerce.Application.Brands;
+﻿using ECommerce.API.Extensions;
+using ECommerce.API.Responses;
+using ECommerce.Application.Brands;
+using ECommerce.Application.Brands.DTOs;
+using ECommerce.Application.Common.Pagination;
+using Microsoft.AspNetCore.Mvc;
 
-namespace ECommerce.API.Endpoints
+
+namespace ECommerce.API.Endpoints;
+
+public static class BrandEndpoints
 {
-    public static class BrandEndpoints
+    public static IEndpointRouteBuilder MapBrandEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        public static IEndpointRouteBuilder MapBrandEndpoints(this IEndpointRouteBuilder endpoints)
+        var group = endpoints
+            .MapGroup("/api/v1/brands")
+            .WithTags("Brands");
+
+        group.MapGet("/", async (
+            [AsParameters] PaginationRequest paginationRequest,
+            IBrandQueryService brandQueryService,
+            HttpContext context,
+            CancellationToken ct) =>
         {
-            var group = endpoints
-                .MapGroup("/api/v1/brands")
-                .WithTags("Brands");
+            var response = await brandQueryService.GetAllBrandResponse(paginationRequest, ct);
 
-            group.MapGet("/", async (
-                IBrandQueryService brandQueryService,
-                CancellationToken ct) =>
-            {
-                var brands = await brandQueryService.GetAllBrandResponse(ct);
+            return response.ToApiResult(context);
+        })
+        .WithName("GetBrands")
+        .WithSummary("Retrieve all brands")
+        .WithDescription("Returns a list of all available product brands.")
+        .Produces<ApiResponse<IReadOnlyList<GetAllBrandsResponse>>>(StatusCodes.Status200OK)
+        .Produces<ApiResponse<GetAllBrandsResponse>>(StatusCodes.Status500InternalServerError);
 
-                return Results.Ok(brands);
-            })
-            .WithName("GetBrands")
-            .WithSummary("Gets all brands");
+        group.MapGet("/{id:guid}", async (
+            Guid id,
+            IBrandQueryService brandQueryService,
+            HttpContext context,
+            CancellationToken ct) =>
+        {
+            var response = await brandQueryService.GetByIdBrandResponse(id, ct);
 
-            group.MapGet("/{id:guid}", async (
-                Guid id,
-                IBrandQueryService brandQueryService,
-                CancellationToken ct) =>
-            {
-                var brand = await brandQueryService.GetByIdBrandResponse(id, ct);
+            return response.ToApiResult(context);
+        })
+        .WithName("GetBrandById")
+        .WithSummary("Retrieve a brand by ID")
+        .WithDescription("Returns the brand matching the specified identifier.")
+        .Produces<ApiResponse<GetByIdBrandResponse>>(StatusCodes.Status200OK)
+        .Produces<ApiResponse<GetByIdBrandResponse>>(StatusCodes.Status400BadRequest)
+        .Produces<ApiResponse<GetByIdBrandResponse>>(StatusCodes.Status404NotFound)
+        .Produces<ApiResponse<GetByIdBrandResponse>>(StatusCodes.Status500InternalServerError);
+        
 
-                return brand is null
-                    ? Results.NotFound()
-                    : Results.Ok(brand);
-            })
-            .WithName("GetBrandById")
-            .WithSummary("Gets a brand by id");
-
-            return endpoints;
-        }
+        return endpoints;
     }
 }

@@ -2,15 +2,27 @@
 
 public sealed class PaginationMeta
 {
-    public int PageIndex { get; init; }
+    public int PageNumber { get; init; }
 
     public int PageSize { get; init; }
 
-    public int TotalItems { get; init; }
+    public int TotalCount { get; init; }
 
     public int TotalPages { get; init; }
 
-    public bool HasNextPage => PageIndex < TotalPages;
+    public bool HasNextPage { get; init; }
 
-    public bool HasPreviousPage => PageIndex > 1;
+    public bool HasPreviousPage { get; init; }
+
+    public PaginationMeta(int pageNumber, int pageSize, int totalCount)
+    {
+
+        PageNumber = pageNumber;
+        PageSize = pageSize;
+        TotalCount = totalCount;
+        TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+        HasPreviousPage = PageNumber > 1;
+        HasNextPage = pageNumber < TotalPages;
+
+    }
 }

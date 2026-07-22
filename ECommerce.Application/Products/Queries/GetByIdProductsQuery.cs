@@ -1,7 +1,6 @@
 ﻿
 
 using ECommerce.Application.Products.DTOs;
-using ECommerce.Application.Products.Errors;
 using ECommerce.Domain.Common.Results;
 
 namespace ECommerce.Application.Products.Queries;
@@ -12,10 +11,9 @@ public sealed class GetByIdProductsQuery(IProductQueryService productQueryServic
     {
 
         var product = await productQueryService.GetByIdProductResponse(id);
-        if(product != null)
-            return Result<GetByIdProductResponse>.Success(product);
-        else
-            return Result<GetByIdProductResponse>.Failure(ProductErrors.NotFound);
+       
+            return product;
+      
 
     }
 }

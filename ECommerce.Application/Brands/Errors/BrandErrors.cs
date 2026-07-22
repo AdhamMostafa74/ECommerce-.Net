@@ -6,10 +6,12 @@ namespace ECommerce.Application.Brands.Errors
     {
         public static readonly Error NotFound = new(
             "Brand.NotFound",
-            "The requested brand was not found.");
+            "The requested brand was not found.",
+            ErrorType.NotFound);
 
         public static readonly Error AlreadyExists = new(
             "Brand.AlreadyExists",
-            "A brand with the same name already exists.");
+            "A brand with the same name already exists.",
+            ErrorType.Conflict);
     }
 }

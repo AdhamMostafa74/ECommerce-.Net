@@ -12,7 +12,7 @@ public sealed class GetByIdBrandQuery(
         var brand = await brandQueryService.GetByIdBrandResponse(id);
 
         if (brand != null)
-            return Result<GetByIdBrandResponse>.Success(brand);
+            return brand;
 
         return Result<GetByIdBrandResponse>.Failure(BrandErrors.NotFound);
     }

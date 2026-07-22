@@ -32,6 +32,29 @@ public class Product : BaseEntity
         ProductTypeId = productTypeId;
     }
 
+    public static Product Create(
+    Guid id,
+    string name,
+    string description,
+    string pictureUrl,
+    decimal price,
+    Guid brandId,
+    Guid productTypeId)
+    {
+        if (id == Guid.Empty)
+            throw new ArgumentException("Product Id is required.", nameof(id));
+
+        return new Product(
+            name,
+            description,
+            pictureUrl,
+            price,
+            brandId,
+            productTypeId)
+        {
+            Id = id
+        };
+    }
     public void SetName(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
@@ -87,6 +110,6 @@ public class Product : BaseEntity
 
     public void RestoreProduct()
     {
-        Restore(Environment.UserName); 
+        Restore(Environment.UserName);
     }
 }

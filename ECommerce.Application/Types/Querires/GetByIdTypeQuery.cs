@@ -11,9 +11,8 @@ public sealed class GetByIdTypeQuery(
     {
         var type = await typeQueryService.GetByIdTypeResponse(id);
 
-        if (type != null)
-            return Result<GetByIdTypeResponse>.Success(type);
 
-        return Result<GetByIdTypeResponse>.Failure(TypeErrors.NotFound);
+        return type;
+
     }
 }

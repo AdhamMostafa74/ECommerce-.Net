@@ -24,7 +24,7 @@ public class JsonSeeder
 
         if (await dbSet.AnyAsync(ct)) return;
         var filePath = Path.Combine(AppContext.BaseDirectory , "Presistence", "DataSeeding","Data" , fileName);
-
+        Console.WriteLine(filePath);
         if (!File.Exists(filePath)) return;
 
         await using var stream = File.OpenRead(filePath);
