@@ -1,40 +1,74 @@
-﻿using ECommerce.Domain.Entities;
+﻿using ECommerce.Domain.Common.Specifications;
+using ECommerce.Domain.Entities;
 using ECommerce.Domain.Repositories;
 using ECommerce.Infrastructure.Data.DbContexts;
+using ECommerce.Infrastructure.Presistence.Specification;
 using Microsoft.EntityFrameworkCore;
 
 namespace ECommerce.Infrastructure.Presistence.Repositories;
 
-public class Repository<T>(ECommerceDbContext db) : IRepository<T>
+public class Repository<T>(ECommerceDbContext context) : IRepository<T>
     where T : BaseEntity
 {
-    protected readonly DbSet<T> _dbSet = db.Set<T>();
+    private readonly ECommerceDbContext _context = context;
+
+    public async Task<IReadOnlyList<T>> ListAsync(
+        ISpecification<T> specification,
+        CancellationToken ct)
+    {
+
+        return await ApplySpecification(specification).ToListAsync(ct);
+    }
+
+    public async Task<T?> FirstOrDefaultAsync(
+        ISpecification<T> specification,
+        CancellationToken ct)
+    {
+
+
+        return await ApplySpecification(specification).AsNoTracking().FirstOrDefaultAsync(ct);
+    }
+
+    public async Task<int> CountAsync(
+        ISpecification<T> specification,
+        CancellationToken ct)
+    {
+
+
+
+        return await ApplySpecification(specification).AsNoTracking().CountAsync(ct);
+    }
+
+    public async Task<bool> AnyAsync(
+        ISpecification<T> specification,
+        CancellationToken ct)
+    {
+        return await ApplySpecification(specification).AsNoTracking().AnyAsync(ct);
+
+    }
 
     public void Create(T entity)
     {
-        _dbSet.Add(entity);
+        _context.Set<T>().Add(entity);
     }
 
     public void Update(T entity)
     {
-        _dbSet.Update(entity);
+        _context.Set<T>().Update(entity);
     }
 
     public void Delete(T entity)
     {
-        _dbSet.Remove(entity);
+        _context.Set<T>().Remove(entity);
     }
 
-    public async Task<IEnumerable<T>> GetAll(CancellationToken ct = default)
+    public IQueryable<T> ApplySpecification(ISpecification<T> specification)
     {
-        return await _dbSet
-            .AsNoTracking()
-            .ToListAsync(ct);
+        return SpecificationEvaluator.GetQuery(
+            _context.Set<T>(),
+            specification);
     }
 
-    public async Task<T?> GetById(Guid id, CancellationToken ct = default)
-    {
-        return await _dbSet.FindAsync([id], ct);
-    }
+
 
 }

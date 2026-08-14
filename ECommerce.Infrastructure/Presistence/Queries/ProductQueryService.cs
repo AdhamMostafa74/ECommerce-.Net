@@ -3,20 +3,24 @@ using ECommerce.Application.Products;
 using ECommerce.Application.Products.DTOs;
 using ECommerce.Application.Products.Errors;
 using ECommerce.Domain.Common.Results;
-using ECommerce.Infrastructure.Data.DbContexts;
+using ECommerce.Domain.Common.Specifications.ProductsSpecifications;
+using ECommerce.Domain.Entities;
+using ECommerce.Domain.Repositories;
 using ECommerce.Infrastructure.Presistence.Common;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 
 namespace ECommerce.Infrastructure.Presistence.Queries;
 
-public class ProductQueryService(ECommerceDbContext db) : IProductQueryService
+public class ProductQueryService(IRepository<Product> _repo) : IProductQueryService
 {
     public async Task<Result<PaginatedResult<GetAllProductResponse>>> GetAllProductResponse(
         PaginationRequest pagination,
         CancellationToken ct = default)
     {
-        var products = await db.Products
+        var spec = new ProductsSpecification(pagination);
+        var products = await _repo
+            .ApplySpecification(spec)
             .AsNoTracking()
             .ProjectToType<GetAllProductResponse>()
             .ToPaginatedResultAsync(pagination, ct);
@@ -28,9 +32,11 @@ public class ProductQueryService(ECommerceDbContext db) : IProductQueryService
         Guid id,
         CancellationToken ct = default)
     {
-        var product = await db.Products
+        var spec = new ProductByIdSpecification(id);
+
+        var product = await _repo
+            .ApplySpecification(spec)
             .AsNoTracking()
-            .Where(p => p.Id == id)
             .ProjectToType<GetByIdProductResponse>()
             .FirstOrDefaultAsync(ct);
 

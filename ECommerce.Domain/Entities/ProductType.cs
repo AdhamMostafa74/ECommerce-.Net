@@ -11,6 +11,7 @@ public class ProductType : BaseEntity
 
 
 
+
     public static ProductType Create(Guid id, string name)
     {
 
@@ -21,7 +22,6 @@ public class ProductType : BaseEntity
         return new()
         {
 
-            Id = id,
             Name = name.Trim()
         };
     }

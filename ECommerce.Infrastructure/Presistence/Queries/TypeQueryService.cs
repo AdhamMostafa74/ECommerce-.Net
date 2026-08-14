@@ -1,10 +1,11 @@
-﻿using ECommerce.Application.Brands.DTOs;
-using ECommerce.Application.Common.Pagination;
+﻿using ECommerce.Application.Common.Pagination;
 using ECommerce.Application.Types;
 using ECommerce.Application.Types.DTOs;
 using ECommerce.Application.Types.Errors;
 using ECommerce.Domain.Common.Results;
-using ECommerce.Infrastructure.Data.DbContexts;
+using ECommerce.Domain.Common.Specifications.TypesSpecifications;
+using ECommerce.Domain.Entities;
+using ECommerce.Domain.Repositories;
 using ECommerce.Infrastructure.Presistence.Common;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
@@ -12,13 +13,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ECommerce.Infrastructure.Presistence.Queries;
 
-public class TypeQueryService(ECommerceDbContext db) : ITypeQueryService
+public class TypeQueryService(IRepository<ProductType> _repo) : ITypeQueryService
 {
     public async Task<Result<PaginatedResult<GetAllTypesResponse>>> GetAllTypeResponse(
         PaginationRequest paginationRequest,
         CancellationToken ct = default)
     {
-        var response = await db.ProductTypes
+        var spec = new ProductTypesSpecification();
+        var response = await _repo
+            .ApplySpecification(spec)
             .AsNoTracking()
             .ProjectToType<GetAllTypesResponse>()
             .ToPaginatedResultAsync(paginationRequest, ct);
@@ -30,10 +33,13 @@ public class TypeQueryService(ECommerceDbContext db) : ITypeQueryService
         Guid id,
         CancellationToken ct = default)
     {
-        var response = await db.ProductTypes
-            .Where(x => x.Id == id)
+        var spec = new ProductTypeByIdSpecification(id);
+        var response = await _repo
+            .ApplySpecification(spec)
+            .AsNoTracking()
             .ProjectToType<GetByIdTypeResponse>()
             .FirstOrDefaultAsync(ct);
+
         return response is null
             ? Result<GetByIdTypeResponse>.Failure(TypeErrors.NotFound)
             : Result<GetByIdTypeResponse>.Success(response);

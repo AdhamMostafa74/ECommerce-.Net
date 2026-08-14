@@ -1,4 +1,6 @@
-﻿namespace ECommerce.Domain.Common
+﻿using ECommerce.Domain.Common.Types;
+
+namespace ECommerce.Domain.Common
 {
     public sealed record Error(
         string Code,

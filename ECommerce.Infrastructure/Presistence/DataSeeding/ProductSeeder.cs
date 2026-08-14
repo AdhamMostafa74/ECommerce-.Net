@@ -14,7 +14,6 @@ public class ProductSeeder(ECommerceDbContext db) : IDataSeeder
      db.Products,
      "Products.json",
      p => Product.Create(
-         p.Id,
          p.Name,
          p.Description,
          p.PictureUrl,

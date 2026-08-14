@@ -3,23 +3,28 @@ using ECommerce.Application.Brands.DTOs;
 using ECommerce.Application.Brands.Errors;
 using ECommerce.Application.Common.Pagination;
 using ECommerce.Domain.Common.Results;
-using ECommerce.Infrastructure.Data.DbContexts;
+using ECommerce.Domain.Common.Specifications.BrandsSpecifications;
+using ECommerce.Domain.Entities;
+using ECommerce.Domain.Repositories;
 using ECommerce.Infrastructure.Presistence.Common;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 
 namespace ECommerce.Infrastructure.Presistence.Queries;
 
-public class BrandQueryService(ECommerceDbContext db) : IBrandQueryService
+public class BrandQueryService(IRepository<ProductBrand> repo) : IBrandQueryService
 {
     public async Task<Result<PaginatedResult<GetAllBrandsResponse>>> GetAllBrandResponse(
         PaginationRequest paginationRequest,
         CancellationToken ct = default)
     {
-        var brands = await db.ProductBrands
-           .AsNoTracking()
-.ProjectToType<GetAllBrandsResponse>()
-.ToPaginatedResultAsync(paginationRequest, ct);
+        var spec = new BrandsSpecification();
+
+        var brands = await repo
+            .ApplySpecification(spec)
+            .AsNoTracking()
+            .ProjectToType<GetAllBrandsResponse>()
+            .ToPaginatedResultAsync(paginationRequest, ct);
 
         return Result<PaginatedResult<GetAllBrandsResponse>>.Success(brands);
     }
@@ -28,8 +33,11 @@ public class BrandQueryService(ECommerceDbContext db) : IBrandQueryService
         Guid id,
         CancellationToken ct = default)
     {
-        var brand = await db.ProductBrands
-             .Where(x => x.Id == id)
+        var spec = new BrandByIdSpecification(id);
+
+        var brand = await repo 
+             .ApplySpecification(spec)
+             .AsNoTracking()
              .ProjectToType<GetByIdBrandResponse>()
              .FirstOrDefaultAsync(ct);
 

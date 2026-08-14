@@ -1,0 +1,53 @@
+﻿using FluentValidation;
+
+namespace ECommerce.Application.Products.Commands.UpdateProduct;
+
+public sealed class UpdateProductValidator : AbstractValidator<UpdateProductCommand>
+{
+    public UpdateProductValidator()
+    {
+        RuleFor(x => x.Id)
+            .NotEmpty();
+
+        RuleFor(x => x)
+            .Must(HaveAtLeastOneFieldToUpdate)
+            .WithMessage("At least one field must be provided for update.");
+
+        RuleFor(x => x.Name)
+            .NotEmpty()
+            .MaximumLength(100)
+            .When(x => x.Name is not null);
+
+        RuleFor(x => x.Description)
+            .NotEmpty()
+            .MaximumLength(1000)
+            .When(x => x.Description is not null);
+
+        RuleFor(x => x.PictureUrl)
+            .NotEmpty()
+            .MaximumLength(500)
+            .When(x => x.PictureUrl is not null);
+
+        RuleFor(x => x.Price)
+            .GreaterThan(0)
+            .When(x => x.Price.HasValue);
+
+        RuleFor(x => x.BrandId)
+            .NotEmpty()
+            .When(x => x.BrandId.HasValue);
+
+        RuleFor(x => x.TypeId)
+            .NotEmpty()
+            .When(x => x.TypeId.HasValue);
+    }
+
+    private static bool HaveAtLeastOneFieldToUpdate(UpdateProductCommand command)
+    {
+        return command.Name is not null ||
+               command.Description is not null ||
+               command.PictureUrl is not null ||
+               command.Price.HasValue ||
+               command.BrandId.HasValue ||
+               command.TypeId.HasValue;
+    }
+}

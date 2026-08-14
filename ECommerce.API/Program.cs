@@ -1,6 +1,6 @@
 using ECommerce.API;
 using ECommerce.API.Endpoints;
-using ECommerce.Application;
+using ECommerce.Application.Common;
 using ECommerce.Infrastructure;
 using ECommerce.Infrastructure.Data.DbContexts;
 using ECommerce.Infrastructure.Presistence.DataSeeding;

@@ -7,11 +7,11 @@ public class Product : BaseEntity
     public string PictureUrl { get; private set; } = string.Empty;
     public decimal Price { get; private set; }
 
-    public Guid BrandId { get; private set; }
-    public ProductBrand Brand { get; private set; } = null!;
+    public Guid ProductBrandId { get; private set; }
+    public ProductBrand ProductBrand { get; private set; } = null!;
 
     public Guid ProductTypeId { get; private set; }
-    public ProductType Type { get; private set; } = null!;
+    public ProductType ProductType { get; private set; } = null!;
     private Product() { }
 
     public Product(
@@ -28,12 +28,11 @@ public class Product : BaseEntity
         ChangePrice(price);
         ChangeBrand(brandId);
         ChangeProductType(productTypeId);
-        BrandId = brandId;
+        ProductBrandId = brandId;
         ProductTypeId = productTypeId;
     }
 
     public static Product Create(
-    Guid id,
     string name,
     string description,
     string pictureUrl,
@@ -41,20 +40,15 @@ public class Product : BaseEntity
     Guid brandId,
     Guid productTypeId)
     {
-        if (id == Guid.Empty)
-            throw new ArgumentException("Product Id is required.", nameof(id));
-
         return new Product(
             name,
             description,
             pictureUrl,
             price,
             brandId,
-            productTypeId)
-        {
-            Id = id
-        };
+            productTypeId);
     }
+
     public void SetName(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
@@ -90,9 +84,9 @@ public class Product : BaseEntity
     public void ChangeBrand(Guid brandId)
     {
         if (brandId == Guid.Empty)
-            throw new ArgumentException("Brand is required.");
+            throw new ArgumentException("ProductBrand is required.");
 
-        BrandId = brandId;
+        ProductBrandId = brandId;
     }
 
     public void ChangeProductType(Guid productTypeId)
