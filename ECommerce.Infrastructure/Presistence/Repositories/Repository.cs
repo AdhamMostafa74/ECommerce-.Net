@@ -26,8 +26,6 @@ public class Repository<T>(ECommerceDbContext context) : IRepository<T>
     {
 
 
-        return await ApplySpecification(specification)
-            .FirstOrDefaultAsync(ct);
     }
 
     public async Task<int> CountAsync(

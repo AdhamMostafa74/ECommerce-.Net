@@ -4,9 +4,6 @@ public class ProductBrand : BaseEntity
 {
     public string Name { get; private set; } = string.Empty;
 
-
-    private readonly List<Product> _products = [];
-    public IReadOnlyCollection<Product> Products => _products.AsReadOnly();
     private ProductBrand() { }
 
 
