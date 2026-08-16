@@ -1,0 +1,45 @@
+C:\Users\Adham Mostafa\source\repos\New folder\ECommerce.Application\bin\Debug\net9.0\ECommerce.Application.deps.json
+C:\Users\Adham Mostafa\source\repos\New folder\ECommerce.Application\bin\Debug\net9.0\ECommerce.Application.dll
+C:\Users\Adham Mostafa\source\repos\New folder\ECommerce.Application\bin\Debug\net9.0\ECommerce.Application.pdb
+C:\Users\Adham Mostafa\source\repos\New folder\ECommerce.Application\bin\Debug\net9.0\ECommerce.Domain.dll
+C:\Users\Adham Mostafa\source\repos\New folder\ECommerce.Application\bin\Debug\net9.0\ECommerce.Domain.pdb
+C:\Users\Adham Mostafa\source\repos\New folder\ECommerce.Application\obj\Debug\net9.0\ECommerce.Application.csproj.AssemblyReference.cache
+C:\Users\Adham Mostafa\source\repos\New folder\ECommerce.Application\obj\Debug\net9.0\ECommerce.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Adham Mostafa\source\repos\New folder\ECommerce.Application\obj\Debug\net9.0\ECommerce.Application.AssemblyInfoInputs.cache
+C:\Users\Adham Mostafa\source\repos\New folder\ECommerce.Application\obj\Debug\net9.0\ECommerce.Application.AssemblyInfo.cs
+C:\Users\Adham Mostafa\source\repos\New folder\ECommerce.Application\obj\Debug\net9.0\ECommerce.Application.csproj.CoreCompileInputs.cache
+C:\Users\Adham Mostafa\source\repos\New folder\ECommerce.Application\obj\Debug\net9.0\ECommerc.670E0CBE.Up2Date
+C:\Users\Adham Mostafa\source\repos\New folder\ECommerce.Application\obj\Debug\net9.0\ECommerce.Application.dll
+C:\Users\Adham Mostafa\source\repos\New folder\ECommerce.Application\obj\Debug\net9.0\refint\ECommerce.Application.dll
+C:\Users\Adham Mostafa\source\repos\New folder\ECommerce.Application\obj\Debug\net9.0\ECommerce.Application.pdb
+C:\Users\Adham Mostafa\source\repos\New folder\ECommerce.Application\obj\Debug\net9.0\ref\ECommerce.Application.dll
+C:\Users\Adham Mostafa\source\repos\ECommerce\ECommerce.Application\bin\Debug\net9.0\ECommerce.Application.deps.json
+C:\Users\Adham Mostafa\source\repos\ECommerce\ECommerce.Application\bin\Debug\net9.0\ECommerce.Application.dll
+C:\Users\Adham Mostafa\source\repos\ECommerce\ECommerce.Application\bin\Debug\net9.0\ECommerce.Application.pdb
+C:\Users\Adham Mostafa\source\repos\ECommerce\ECommerce.Application\bin\Debug\net9.0\ECommerce.Domain.dll
+C:\Users\Adham Mostafa\source\repos\ECommerce\ECommerce.Application\bin\Debug\net9.0\ECommerce.Domain.pdb
+C:\Users\Adham Mostafa\source\repos\ECommerce\ECommerce.Application\obj\Debug\net9.0\ECommerce.Application.csproj.AssemblyReference.cache
+C:\Users\Adham Mostafa\source\repos\ECommerce\ECommerce.Application\obj\Debug\net9.0\ECommerce.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Adham Mostafa\source\repos\ECommerce\ECommerce.Application\obj\Debug\net9.0\ECommerce.Application.AssemblyInfoInputs.cache
+C:\Users\Adham Mostafa\source\repos\ECommerce\ECommerce.Application\obj\Debug\net9.0\ECommerce.Application.AssemblyInfo.cs
+C:\Users\Adham Mostafa\source\repos\ECommerce\ECommerce.Application\obj\Debug\net9.0\ECommerce.Application.csproj.CoreCompileInputs.cache
+C:\Users\Adham Mostafa\source\repos\ECommerce\ECommerce.Application\obj\Debug\net9.0\ECommerc.670E0CBE.Up2Date
+C:\Users\Adham Mostafa\source\repos\ECommerce\ECommerce.Application\obj\Debug\net9.0\ECommerce.Application.dll
+C:\Users\Adham Mostafa\source\repos\ECommerce\ECommerce.Application\obj\Debug\net9.0\refint\ECommerce.Application.dll
+C:\Users\Adham Mostafa\source\repos\ECommerce\ECommerce.Application\obj\Debug\net9.0\ECommerce.Application.pdb
+C:\Users\Adham Mostafa\source\repos\ECommerce\ECommerce.Application\obj\Debug\net9.0\ref\ECommerce.Application.dll
+D:\Adham Mostafa\Course\.NET\ECommerce\ECommerce.Application\bin\Debug\net9.0\ECommerce.Application.deps.json
+D:\Adham Mostafa\Course\.NET\ECommerce\ECommerce.Application\bin\Debug\net9.0\ECommerce.Application.dll
+D:\Adham Mostafa\Course\.NET\ECommerce\ECommerce.Application\bin\Debug\net9.0\ECommerce.Application.pdb
+D:\Adham Mostafa\Course\.NET\ECommerce\ECommerce.Application\bin\Debug\net9.0\ECommerce.Domain.dll
+D:\Adham Mostafa\Course\.NET\ECommerce\ECommerce.Application\bin\Debug\net9.0\ECommerce.Domain.pdb
+D:\Adham Mostafa\Course\.NET\ECommerce\ECommerce.Application\obj\Debug\net9.0\ECommerce.Application.csproj.AssemblyReference.cache
+D:\Adham Mostafa\Course\.NET\ECommerce\ECommerce.Application\obj\Debug\net9.0\ECommerce.Application.GeneratedMSBuildEditorConfig.editorconfig
+D:\Adham Mostafa\Course\.NET\ECommerce\ECommerce.Application\obj\Debug\net9.0\ECommerce.Application.AssemblyInfoInputs.cache
+D:\Adham Mostafa\Course\.NET\ECommerce\ECommerce.Application\obj\Debug\net9.0\ECommerce.Application.AssemblyInfo.cs
+D:\Adham Mostafa\Course\.NET\ECommerce\ECommerce.Application\obj\Debug\net9.0\ECommerce.Application.csproj.CoreCompileInputs.cache
+D:\Adham Mostafa\Course\.NET\ECommerce\ECommerce.Application\obj\Debug\net9.0\ECommerc.670E0CBE.Up2Date
+D:\Adham Mostafa\Course\.NET\ECommerce\ECommerce.Application\obj\Debug\net9.0\ECommerce.Application.dll
+D:\Adham Mostafa\Course\.NET\ECommerce\ECommerce.Application\obj\Debug\net9.0\refint\ECommerce.Application.dll
+D:\Adham Mostafa\Course\.NET\ECommerce\ECommerce.Application\obj\Debug\net9.0\ECommerce.Application.pdb
+D:\Adham Mostafa\Course\.NET\ECommerce\ECommerce.Application\obj\Debug\net9.0\ref\ECommerce.Application.dll

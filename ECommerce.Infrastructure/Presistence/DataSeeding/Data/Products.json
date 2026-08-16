@@ -1,0 +1,110 @@
+[
+  {
+    "Id": "5e5c8fd1-fd2b-4209-8a3e-1f49d13b8a01",
+    "Name": "Nike Air Max 90",
+    "Description": "Classic everyday sneakers with premium comfort.",
+    "Price": 3999.99,
+    "PictureUrl": "products/nike-air-max-90.jpg",
+    "BrandId": "7f54d87d-b17d-4d44-9b39-ef6e5fd34d8d",
+    "ProductTypeId": "41e5b5b8-cc4f-4d72-ae8c-2d14d5dc4b5f"
+  },
+  {
+    "Id": "4dbf8f5b-7f60-40cb-a4f6-2b6d67dd11f1",
+    "Name": "Nike Dri-FIT T-Shirt",
+    "Description": "Breathable sports t-shirt for everyday training.",
+    "Price": 899.99,
+    "PictureUrl": "products/nike-drifit-shirt.jpg",
+    "BrandId": "7f54d87d-b17d-4d44-9b39-ef6e5fd34d8d",
+    "ProductTypeId": "f8b81c59-97bb-4938-98ea-f8b6d59c1d77"
+  },
+  {
+    "Id": "aef91771-8cb8-4e86-8128-7c5f4a6d6d14",
+    "Name": "Nike Sports Shorts",
+    "Description": "Comfortable sports shorts with moisture-wicking fabric.",
+    "Price": 699.99,
+    "PictureUrl": "products/nike-shorts.jpg",
+    "BrandId": "7f54d87d-b17d-4d44-9b39-ef6e5fd34d8d",
+    "ProductTypeId": "0d1bdf2d-6cbb-4f8b-bf0e-2455c8f84f6c"
+  },
+  {
+    "Id": "2fa7d7a6-dbd0-4e89-b2d8-0d2ab7ddf842",
+    "Name": "Activ Running Shoes",
+    "Description": "Lightweight running shoes designed for daily workouts.",
+    "Price": 1499.99,
+    "PictureUrl": "products/activ-running-shoes.jpg",
+    "BrandId": "3b67a16d-6d6f-4f0d-bf95-d3c94d5a48d5",
+    "ProductTypeId": "41e5b5b8-cc4f-4d72-ae8c-2d14d5dc4b5f"
+  },
+  {
+    "Id": "3dfcbfc0-8489-4bc5-8b9b-7964b2a26b91",
+    "Name": "ZARA Linen Shirt",
+    "Description": "Slim-fit linen shirt perfect for warm weather.",
+    "Price": 1299.99,
+    "PictureUrl": "products/zara-linen-shirt.jpg",
+    "BrandId": "6c7b7d98-ffde-4b59-bc40-5e8d0dc87b77",
+    "ProductTypeId": "f8b81c59-97bb-4938-98ea-f8b6d59c1d77"
+  },
+  {
+    "Id": "df8b0d6e-c24b-4c81-a58c-ec5d5d2bbaf8",
+    "Name": "Levi's 501 Jeans",
+    "Description": "Original straight-fit denim jeans.",
+    "Price": 1799.99,
+    "PictureUrl": "products/levis-501.jpg",
+    "BrandId": "9a0c65a5-c8d7-48f4-9f6d-59db73a84d64",
+    "ProductTypeId": "0d1bdf2d-6cbb-4f8b-bf0e-2455c8f84f6c"
+  },
+  {
+    "Id": "f6371ef4-f5e5-4781-98e0-bfb17b6f7b11",
+    "Name": "Mango Summer Dress",
+    "Description": "Elegant floral summer dress with a relaxed fit.",
+    "Price": 1599.99,
+    "PictureUrl": "products/mango-summer-dress.jpg",
+    "BrandId": "2fda7bb8-1e3d-49b6-8df5-4f1dfb7a83e2",
+    "ProductTypeId": "d6f1d8c8-2d91-4207-a83c-5d20aee6b8d1"
+  },
+  {
+    "Id": "d8d205dc-5220-4f0b-9bd7-5236a3dc69bb",
+    "Name": "H&M Essential Hoodie",
+    "Description": "Soft cotton hoodie for casual everyday wear.",
+    "Price": 999.99,
+    "PictureUrl": "products/hm-essential-hoodie.jpg",
+    "BrandId": "e4c70a53-28c3-4b7a-8c91-4c6d0d9d0b7b",
+    "ProductTypeId": "d6f1d8c8-2d91-4207-a83c-5d20aee6b8d1"
+  },
+  {
+    "Id": "6a2a2b15-7dcb-4d80-a7bb-0f8c8dfeaf31",
+    "Name": "H&M Basic T-Shirt",
+    "Description": "Classic crew neck cotton t-shirt.",
+    "Price": 399.99,
+    "PictureUrl": "products/hm-basic-tshirt.jpg",
+    "BrandId": "e4c70a53-28c3-4b7a-8c91-4c6d0d9d0b7b",
+    "ProductTypeId": "f8b81c59-97bb-4938-98ea-f8b6d59c1d77"
+  },
+  {
+    "Id": "0d51c8f4-1d6a-4c46-a13d-c7f9c6cb69d5",
+    "Name": "ZARA Chino Pants",
+    "Description": "Modern slim-fit chino trousers.",
+    "Price": 1399.99,
+    "PictureUrl": "products/zara-chino-pants.jpg",
+    "BrandId": "6c7b7d98-ffde-4b59-bc40-5e8d0dc87b77",
+    "ProductTypeId": "0d1bdf2d-6cbb-4f8b-bf0e-2455c8f84f6c"
+  },
+  {
+    "Id": "9e7b1baf-0f17-49a3-a0d9-d2f54f86fd4d",
+    "Name": "Levi's Denim Jacket",
+    "Description": "Timeless denim jacket with a regular fit.",
+    "Price": 2499.99,
+    "PictureUrl": "products/levis-denim-jacket.jpg",
+    "BrandId": "9a0c65a5-c8d7-48f4-9f6d-59db73a84d64",
+    "ProductTypeId": "d6f1d8c8-2d91-4207-a83c-5d20aee6b8d1"
+  },
+  {
+    "Id": "31d59f0d-7197-43c8-97d5-fca7d7c2e58b",
+    "Name": "Mango Leather Handbag",
+    "Description": "Stylish handbag suitable for everyday use.",
+    "Price": 2199.99,
+    "PictureUrl": "products/mango-handbag.jpg",
+    "BrandId": "2fda7bb8-1e3d-49b6-8df5-4f1dfb7a83e2",
+    "ProductTypeId": "41e5b5b8-cc4f-4d72-ae8c-2d14d5dc4b5f"
+  }
+]
