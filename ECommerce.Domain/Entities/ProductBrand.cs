@@ -7,6 +7,8 @@ public class ProductBrand : BaseEntity
     private ProductBrand() { }
 
 
+    private readonly List<Product> _products = [];
+    public IReadOnlyCollection<Product> Products => _products.AsReadOnly();
 
     public static ProductBrand Create(Guid id, string name)
     {

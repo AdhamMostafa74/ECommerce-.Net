@@ -28,9 +28,6 @@ namespace ECommerce.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ProductBrandId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 
@@ -60,6 +57,9 @@ namespace ECommerce.Infrastructure.Migrations
                     b.Property<decimal>("Price")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("ProductBrandId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ProductTypeId")
                         .HasColumnType("uniqueidentifier");

@@ -24,6 +24,7 @@ public class Repository<T>(ECommerceDbContext context) : IRepository<T>
         ISpecification<T> specification,
         CancellationToken ct)
     {
+        return await ApplySpecification(specification).AsNoTracking().FirstOrDefaultAsync(ct);
 
 
     }
