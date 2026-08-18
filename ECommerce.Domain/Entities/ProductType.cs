@@ -21,7 +21,7 @@ public class ProductType : BaseEntity
             throw new ArgumentException("Please enter an Id", nameof(id));
         return new()
         {
-
+            Id=id,
             Name = name.Trim()
         };
     }
