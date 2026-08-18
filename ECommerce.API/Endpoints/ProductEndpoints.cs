@@ -6,6 +6,7 @@ using ECommerce.Application.Products.Commands.CreateProduct;
 using ECommerce.Application.Products.Commands.DeleteProduct;
 using ECommerce.Application.Products.Commands.UpdateProduct;
 using ECommerce.Application.Products.DTOs;
+using ECommerce.Application.Products.Queries.GetAllProducts;
 using ECommerce.Application.Products.Queries.GetProductById;
 using MediatR;
 
@@ -24,12 +25,14 @@ public static class ProductEndpoints
         // ===========================
 
         group.MapGet("/", async (
-            [AsParameters] PaginationRequest pagination,
-            IProductQueryService productQueryService,
-            HttpContext context,
-            CancellationToken ct) =>
+      [AsParameters] PaginationRequest pagination,
+      IMediator mediator,
+      HttpContext context,
+      CancellationToken ct) =>
         {
-            var result = await productQueryService.GetAllProductResponse(pagination, ct);
+            var result = await mediator.Send(
+                new GetAllProductsQuery(pagination),
+                ct);
 
             return result.ToApiResult(context);
         })
