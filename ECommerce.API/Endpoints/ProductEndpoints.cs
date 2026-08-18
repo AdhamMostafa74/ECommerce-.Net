@@ -1,7 +1,6 @@
 ﻿using ECommerce.API.Extensions;
 using ECommerce.API.Responses;
 using ECommerce.Application.Common.Pagination;
-using ECommerce.Application.Products;
 using ECommerce.Application.Products.Commands.CreateProduct;
 using ECommerce.Application.Products.Commands.DeleteProduct;
 using ECommerce.Application.Products.Commands.UpdateProduct;
@@ -14,7 +13,8 @@ namespace ECommerce.API.Endpoints;
 
 public static class ProductEndpoints
 {
-    public static IEndpointRouteBuilder MapProductEndpoints(this IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapProductEndpoints(
+        this IEndpointRouteBuilder endpoints)
     {
         var group = endpoints
             .MapGroup("/api/v1/products")
@@ -25,10 +25,10 @@ public static class ProductEndpoints
         // ===========================
 
         group.MapGet("/", async (
-      [AsParameters] PaginationRequest pagination,
-      IMediator mediator,
-      HttpContext context,
-      CancellationToken ct) =>
+            [AsParameters] PaginationRequest pagination,
+            IMediator mediator,
+            HttpContext context,
+            CancellationToken ct) =>
         {
             var result = await mediator.Send(
                 new GetAllProductsQuery(pagination),
@@ -39,8 +39,10 @@ public static class ProductEndpoints
         .WithName("GetProducts")
         .WithSummary("Retrieve all products")
         .WithDescription("Returns a paginated list of available products.")
-        .Produces<ApiResponse<IReadOnlyList<GetAllProductResponse>>>(StatusCodes.Status200OK)
-        .Produces<ApiResponse<IReadOnlyList<GetAllProductResponse>>>(StatusCodes.Status500InternalServerError);
+        .Produces<ApiResponse<PaginatedResult<GetAllProductResponse>>>(
+            StatusCodes.Status200OK)
+        .Produces<ApiResponse<PaginatedResult<GetAllProductResponse>>>(
+            StatusCodes.Status500InternalServerError);
 
         // ===========================
         // Get Product By Id
@@ -52,17 +54,23 @@ public static class ProductEndpoints
             HttpContext context,
             CancellationToken ct) =>
         {
-            var result = await mediator.Send(new GetByIdProductsQuery(id), ct);
+            var result = await mediator.Send(
+                new GetByIdProductsQuery(id),
+                ct);
 
             return result.ToApiResult(context);
         })
         .WithName("GetProductById")
         .WithSummary("Retrieve a product by ID")
         .WithDescription("Returns the product matching the specified identifier.")
-        .Produces<ApiResponse<GetByIdProductResponse>>(StatusCodes.Status200OK)
-        .Produces<ApiResponse<GetByIdProductResponse>>(StatusCodes.Status400BadRequest)
-        .Produces<ApiResponse<GetByIdProductResponse>>(StatusCodes.Status404NotFound)
-        .Produces<ApiResponse<GetByIdProductResponse>>(StatusCodes.Status500InternalServerError);
+        .Produces<ApiResponse<GetByIdProductResponse>>(
+            StatusCodes.Status200OK)
+        .Produces<ApiResponse<GetByIdProductResponse>>(
+            StatusCodes.Status400BadRequest)
+        .Produces<ApiResponse<GetByIdProductResponse>>(
+            StatusCodes.Status404NotFound)
+        .Produces<ApiResponse<GetByIdProductResponse>>(
+            StatusCodes.Status500InternalServerError);
 
         // ===========================
         // Create Product
