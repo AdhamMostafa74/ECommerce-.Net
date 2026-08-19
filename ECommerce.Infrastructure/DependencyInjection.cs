@@ -50,8 +50,7 @@ public static class DependencyInjection
         var redisOptions = new ConfigurationOptions
         {
             User = configuration["Redis:User"],
-            Password = configuration["Redis:Password"],
-            Ssl = true
+            Password = configuration["Redis:Password"]
         };
 
         redisOptions.EndPoints.Add(

@@ -1,4 +1,4 @@
-﻿namespace ECommerce.Domain.Entities.BasketEntities;
+﻿namespace ECommerce.Domain.Entities;
 
 public abstract class BaseEntity
 {

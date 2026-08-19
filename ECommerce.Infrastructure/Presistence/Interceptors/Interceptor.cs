@@ -1,4 +1,4 @@
-﻿using ECommerce.Domain.Entities.BasketEntities;
+﻿using ECommerce.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 

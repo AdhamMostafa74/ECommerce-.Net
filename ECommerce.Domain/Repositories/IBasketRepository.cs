@@ -1,4 +1,4 @@
-﻿using ECommerce.Domain.Entities;
+﻿using ECommerce.Domain.Entities.Basket;
 
 namespace ECommerce.Domain.Repositories;
 

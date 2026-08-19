@@ -1,67 +1,68 @@
-﻿namespace ECommerce.Domain.Entities;
-
-public class Basket
+﻿namespace ECommerce.Domain.Entities.Basket
 {
-    private readonly List<BasketItem> _items = [];
-
-    public Guid Id { get; private set; }
-
-    public IReadOnlyCollection<BasketItem> Items =>
-        _items.AsReadOnly();
-
-    private Basket()
+    public class Basket
     {
-    }
+        private readonly List<BasketItem> _items = [];
 
-    public Basket(Guid id)
-    {
-        Id = id;
-    }
+        public Guid Id { get; private set; }
 
-    public void AddItem(BasketItem item)
-    {
-        var existingItem = _items.FirstOrDefault(
-            x => x.ProductId == item.ProductId);
+        public IReadOnlyCollection<BasketItem> Items =>
+            _items.AsReadOnly();
 
-        if (existingItem is not null)
+        private Basket()
         {
-            existingItem.IncreaseQuantity(item.Quantity);
-            return;
         }
 
-        _items.Add(item);
-    }
+        public Basket(Guid id)
+        {
+            Id = id;
+        }
 
-    public bool UpdateItemQuantity(
-        Guid productId,
-        int quantity)
-    {
-        var item = _items.FirstOrDefault(
-            x => x.ProductId == productId);
+        public void AddItem(BasketItem item)
+        {
+            var existingItem = _items.FirstOrDefault(
+                x => x.ProductId == item.ProductId);
 
-        if (item is null)
-            return false;
+            if (existingItem is not null)
+            {
+                existingItem.IncreaseQuantity(item.Quantity);
+                return;
+            }
 
-        item.SetQuantity(quantity);
+            _items.Add(item);
+        }
 
-        return true;
-    }
+        public bool UpdateItemQuantity(
+            Guid productId,
+            int quantity)
+        {
+            var item = _items.FirstOrDefault(
+                x => x.ProductId == productId);
 
-    public bool RemoveItem(Guid productId)
-    {
-        var item = _items.FirstOrDefault(
-            x => x.ProductId == productId);
+            if (item is null)
+                return false;
 
-        if (item is null)
-            return false;
+            item.SetQuantity(quantity);
 
-        _items.Remove(item);
+            return true;
+        }
 
-        return true;
-    }
+        public bool RemoveItem(Guid productId)
+        {
+            var item = _items.FirstOrDefault(
+                x => x.ProductId == productId);
 
-    public void Clear()
-    {
-        _items.Clear();
+            if (item is null)
+                return false;
+
+            _items.Remove(item);
+
+            return true;
+        }
+
+        public void Clear()
+        {
+            _items.Clear();
+        }
     }
 }

@@ -31,4 +31,5 @@ if (app.Environment.IsDevelopment())
 app.MapProductEndpoints();
 app.MapTypeEndpoints();
 app.MapBrandEndpoints();
+app.MapBasketEndpoints();
 app.Run();

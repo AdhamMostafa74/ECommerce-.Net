@@ -1,6 +1,4 @@
-﻿using ECommerce.Domain.Entities.BasketEntities;
-
-namespace ECommerce.Domain.Entities;
+﻿namespace ECommerce.Domain.Entities;
 
 public class ProductBrand : BaseEntity
 {

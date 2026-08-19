@@ -1,4 +1,4 @@
-﻿using ECommerce.Domain.Entities.BasketEntities;
+﻿using ECommerce.Domain.Entities;
 using ECommerce.Domain.Repositories;
 using ECommerce.Infrastructure.Data.DbContexts;
 using System.Collections.Concurrent;

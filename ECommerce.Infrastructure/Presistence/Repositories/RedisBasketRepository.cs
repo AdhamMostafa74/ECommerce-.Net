@@ -1,53 +1,59 @@
-﻿using System.Text.Json;
-using ECommerce.Domain.Entities;
+﻿using ECommerce.Domain.Entities.Basket;
 using ECommerce.Domain.Repositories;
 using StackExchange.Redis;
+using System.Text.Json;
 
-namespace ECommerce.Infrastructure.Presistence.Repositories;
-
-public sealed class RedisBasketRepository(
-    IConnectionMultiplexer redis) : IBasketRepository
+namespace ECommerce.Infrastructure.Presistence.Repositories
 {
-    private readonly IDatabase _database = redis.GetDatabase();
+    public sealed class RedisBasketRepository(
+        IConnectionMultiplexer redis) : IBasketRepository
 
-    private static string GetKey(Guid basketId)
-        => $"basket:{basketId}";
 
-    public async Task<Basket?> GetAsync(
-        Guid basketId,
-        CancellationToken ct = default)
     {
-        var key = GetKey(basketId);
+        private readonly IDatabase _database = redis.GetDatabase();
 
-        var data = await _database.StringGetAsync(key);
+        // create redis key for basket
 
-        if (data.IsNullOrEmpty)
-            return null;
+        private static string GetKey(Guid basketId)
+    => $"basket:{basketId}";
 
-        return JsonSerializer.Deserialize<Basket>(
-            data.ToString());
-    }
 
-    public async Task SaveAsync(
-        Basket basket,
-        CancellationToken ct = default)
-    {
-        var key = GetKey(basket.Id);
+        public async Task<Basket?> GetAsync(
+      Guid basketId,
+      CancellationToken ct = default)
+        {
+            var key = GetKey(basketId);
 
-        var data = JsonSerializer.Serialize(basket);
+            var basketData = await _database.StringGetAsync(key);
 
-        await _database.StringSetAsync(
-            key,
-            data,
-            TimeSpan.FromDays(30));
-    }
+            if (!basketData.HasValue)
+                return null;
 
-    public async Task DeleteAsync(
-        Guid basketId,
-        CancellationToken ct = default)
-    {
-        var key = GetKey(basketId);
+            return JsonSerializer.Deserialize<Basket>(
+                basketData.ToString());
+        }
 
-        await _database.KeyDeleteAsync(key);
+        public async Task SaveAsync(
+             Basket basket,
+             CancellationToken ct = default)
+        {
+            var key = GetKey(basket.Id);
+
+            var basketData = JsonSerializer.Serialize(basket);
+
+            await _database.StringSetAsync(
+                key,
+                basketData,
+                TimeSpan.FromDays(7));
+
+            var savedBasket = await _database.StringGetAsync(key);
+
+        }
+
+        public Task DeleteAsync(Guid basketId, CancellationToken ct = default)
+        {
+            var key = GetKey(basketId);
+            return _database.KeyDeleteAsync(key);
+        }
     }
 }
