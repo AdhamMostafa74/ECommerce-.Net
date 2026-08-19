@@ -21,7 +21,6 @@ public class ProductQueryService(IRepository<Product> _repo) : IProductQueryServ
         var spec = new ProductsSpecification(pagination);
         var products = await _repo
             .ApplySpecification(spec)
-            .AsNoTracking()
             .ProjectToType<GetAllProductResponse>()
             .ToPaginatedResultAsync(pagination, ct);
 
@@ -36,7 +35,6 @@ public class ProductQueryService(IRepository<Product> _repo) : IProductQueryServ
 
         var product = await _repo
             .ApplySpecification(spec)
-            .AsNoTracking()
             .ProjectToType<GetByIdProductResponse>()
             .FirstOrDefaultAsync(ct);
 

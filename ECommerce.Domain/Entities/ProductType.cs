@@ -1,4 +1,6 @@
-﻿namespace ECommerce.Domain.Entities;
+﻿using ECommerce.Domain.Entities.BasketEntities;
+
+namespace ECommerce.Domain.Entities;
 
 public class ProductType : BaseEntity
 {

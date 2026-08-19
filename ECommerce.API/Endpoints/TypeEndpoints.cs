@@ -3,7 +3,6 @@ using ECommerce.API.Responses;
 using ECommerce.Application.Common.Pagination;
 using ECommerce.Application.Types.DTOs;
 using ECommerce.Application.Types.Queries.GetAllTypes;
-using ECommerce.Application.Types.Queries.GetTypeById;
 using ECommerce.Application.Types.Querires.GetTypeById;
 using MediatR;
 

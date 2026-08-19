@@ -11,6 +11,7 @@ using ECommerce.Infrastructure.Presistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using StackExchange.Redis;
 
 namespace ECommerce.Infrastructure;
 
@@ -38,12 +39,30 @@ public static class DependencyInjection
         services.AddScoped<IBrandQueryService, BrandQueryService>();
         services.AddScoped<ITypeQueryService, TypeQueryService>();
 
+
         services.AddScoped<DatabaseSeeder>();
         services.AddScoped<Interceptor>();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+        //redis
 
+        var redisOptions = new ConfigurationOptions
+        {
+            User = configuration["Redis:User"],
+            Password = configuration["Redis:Password"],
+            Ssl = true
+        };
+
+        redisOptions.EndPoints.Add(
+            configuration["Redis:Host"]!,
+            int.Parse(configuration["Redis:Port"]!));
+
+
+        services.AddSingleton<IConnectionMultiplexer>(
+            ConnectionMultiplexer.Connect(redisOptions));
+
+        services.AddScoped<IBasketRepository, RedisBasketRepository>();
 
         return services;
     }
