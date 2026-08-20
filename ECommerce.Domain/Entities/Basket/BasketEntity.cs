@@ -1,6 +1,8 @@
-﻿namespace ECommerce.Domain.Entities.Basket
+﻿
+
+namespace ECommerce.Domain.Entities.Basket
 {
-    public class Basket
+    public class BasketEntity
     {
         private readonly List<BasketItem> _items = [];
 
@@ -9,14 +11,20 @@
         public IReadOnlyCollection<BasketItem> Items =>
             _items.AsReadOnly();
 
-        private Basket()
+        private BasketEntity()
         {
         }
 
-        public Basket(Guid id)
+        public BasketEntity(Guid id)
         {
             Id = id;
         }
+
+        public int TotalQuantity =>
+    _items.Sum(x => x.Quantity);
+
+        public decimal TotalPrice =>
+            _items.Sum(x => x.Price * x.Quantity);
 
         public void AddItem(BasketItem item)
         {

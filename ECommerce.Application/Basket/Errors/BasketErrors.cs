@@ -6,27 +6,32 @@ namespace ECommerce.Application.Basket.Errors;
 public static class BasketErrors
 {
     public static readonly Error InvalidBasketId = new(
-        "Basket.Invalid Id",
+        "BasketEntity.Invalid Id",
         "The basket ID is invalid.",
         ErrorType.Validation);
 
     public static readonly Error InvalidProductId = new(
-        "Basket.Invalid Product Id",
+        "BasketEntity.Invalid Product Id",
         "The product ID is invalid.",
         ErrorType.Validation);
 
     public static readonly Error InvalidQuantity = new(
-        "Basket.Invalid Quantity",
+        "BasketEntity.Invalid Quantity",
         "Quantity must be greater than zero.",
         ErrorType.Validation);
 
     public static readonly Error ItemNotFound = new(
-        "Basket.Item Not Found",
+        "BasketEntity.Item Not Found",
         "The requested product is not in the basket.",
         ErrorType.NotFound);
 
     public static readonly Error EmptyBasket = new(
-        "Basket.Empty",
+        "BasketEntity.Empty",
         "The basket is empty.",
         ErrorType.Failure);
+
+    public static readonly Error NotFound = new(
+    "Basket.NotFound",
+    "The requested basket was not found.",
+    ErrorType.NotFound);
 }

@@ -1,6 +1,8 @@
 ﻿using ECommerce.API.Extensions;
 using ECommerce.API.Responses;
 using ECommerce.Application.Basket.Commands.AddBasketItem;
+using ECommerce.Application.Basket.Queries.DTOs;
+using ECommerce.Application.Basket.Queries.GetBasket;
 using MediatR;
 
 namespace ECommerce.API.Endpoints;
@@ -12,7 +14,7 @@ public static class BasketEndpoints
     {
         var group = endpoints
             .MapGroup("/api/v1/basket")
-            .WithTags("Basket");
+            .WithTags("BasketEntity");
 
         group.MapPost("/{basketId:guid}/items", async (
             Guid basketId,
@@ -37,6 +39,26 @@ public static class BasketEndpoints
         .Produces<ApiResponse<object?>>(StatusCodes.Status400BadRequest)
         .Produces<ApiResponse<object?>>(StatusCodes.Status404NotFound)
         .Produces<ApiResponse<object?>>(StatusCodes.Status500InternalServerError);
+
+
+        group.MapGet("/{basketId:guid}", async (
+            Guid basketId,
+            ISender sender,
+            HttpContext context,
+            CancellationToken ct) =>
+        {
+            var query = new GetBasketQuery(basketId);
+
+            var result = await sender.Send(query, ct);
+
+            return result.ToApiResult(context);
+        })
+        .WithName("GetBasket")
+        .WithSummary("Get a basket by ID")
+        .Produces<ApiResponse<GetBasketResponse>>(StatusCodes.Status200OK)
+        .Produces<ApiResponse<object>>(StatusCodes.Status404NotFound);
+
+
 
         return endpoints;
     }

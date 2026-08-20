@@ -9,7 +9,7 @@ public sealed class AddBasketItemValidator
     {
         RuleFor(x => x.BasketId)
             .NotEmpty()
-            .WithMessage("Basket ID is required.");
+            .WithMessage("BasketEntity ID is required.");
 
         RuleFor(x => x.ProductId)
             .NotEmpty()

@@ -4,12 +4,12 @@ namespace ECommerce.Domain.Repositories;
 
 public interface IBasketRepository
 {
-    Task<Basket?> GetAsync(
+    Task<BasketEntity?> GetAsync(
         Guid basketId,
         CancellationToken ct = default);
 
     Task SaveAsync(
-        Basket basket,
+        BasketEntity basket,
         CancellationToken ct = default);
 
     Task DeleteAsync(

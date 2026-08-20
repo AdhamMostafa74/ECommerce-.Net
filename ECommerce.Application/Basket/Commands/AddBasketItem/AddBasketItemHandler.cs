@@ -28,7 +28,7 @@ public sealed class AddBasketItemHandler(
             request.BasketId,
             ct);
 
-        basket ??= new Domain.Entities.Basket.Basket(request.BasketId);
+        basket ??= new Domain.Entities.Basket.BasketEntity(request.BasketId);
 
         var item = new BasketItem(
             product.Id,
