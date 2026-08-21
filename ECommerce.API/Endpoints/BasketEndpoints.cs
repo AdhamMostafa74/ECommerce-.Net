@@ -1,6 +1,8 @@
 ﻿using ECommerce.API.Extensions;
 using ECommerce.API.Responses;
 using ECommerce.Application.Basket.Commands.AddBasketItem;
+using ECommerce.Application.Basket.Commands.ClearBasket;
+using ECommerce.Application.Basket.Commands.RemoveBasketItem;
 using ECommerce.Application.Basket.Commands.UpdateBasketItemQuantity;
 using ECommerce.Application.Basket.Queries.DTOs;
 using ECommerce.Application.Basket.Queries.GetBasket;
@@ -16,6 +18,9 @@ public static class BasketEndpoints
         var group = endpoints
             .MapGroup("/api/v1/basket")
             .WithTags("BasketEntity");
+
+
+        // Add a product to the basket
 
         group.MapPost("/{basketId:guid}/items", async (
             Guid basketId,
@@ -42,6 +47,7 @@ public static class BasketEndpoints
         .Produces<ApiResponse<object?>>(StatusCodes.Status500InternalServerError);
 
 
+        // Get a basket by ID
         group.MapGet("/{basketId:guid}", async (
             Guid basketId,
             ISender sender,
@@ -60,6 +66,8 @@ public static class BasketEndpoints
         .Produces<ApiResponse<object>>(StatusCodes.Status404NotFound);
 
 
+
+        // Update the quantity of a basket item
         group.MapPut("/{basketId:guid}/items/{productId:guid}", async (
             Guid basketId,
             Guid productId,
@@ -82,6 +90,52 @@ public static class BasketEndpoints
         .Produces<ApiResponse<GetBasketResponse>>(StatusCodes.Status200OK)
         .Produces<ApiResponse<object>>(StatusCodes.Status400BadRequest)
         .Produces<ApiResponse<object>>(StatusCodes.Status404NotFound);
+
+
+        // Remove an item from the basket
+        group.MapDelete("/{basketId:guid}/items/{productId:guid}", async (
+            Guid basketId,
+            Guid productId,
+            ISender sender,
+            HttpContext context,
+            CancellationToken ct) =>
+        {
+            var command = new RemoveBasketItemCommand(
+                basketId,
+                productId);
+
+            var result = await sender.Send(command, ct);
+
+            return result.ToApiResult(context);
+        })
+        .WithName("RemoveBasketItem")
+        .WithSummary("Remove an item from the basket")
+        .Produces<ApiResponse<GetBasketResponse>>(
+            StatusCodes.Status200OK)
+        .Produces<ApiResponse<object>>(
+            StatusCodes.Status404NotFound);
+
+        // Clear all items from the basket
+        group.MapDelete("/{basketId:guid}", async (
+            Guid basketId,
+            ISender sender,
+            HttpContext context,
+            CancellationToken ct) =>
+        {
+            var command = new ClearBasketCommand(basketId);
+
+            var result = await sender.Send(command, ct);
+
+            return result.ToApiResult(context);
+        })
+        .WithName("ClearBasket")
+        .WithSummary("Clear all items from a basket")
+        .Produces<ApiResponse<GetBasketResponse>>(
+            StatusCodes.Status200OK)
+        .Produces<ApiResponse<object>>(
+            StatusCodes.Status404NotFound);
+
+
 
         return endpoints;
     }
