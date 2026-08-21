@@ -13,7 +13,7 @@ namespace ECommerce.Infrastructure.Migrations
 {
     [DbContext(typeof(ECommerceDbContext))]
     [Migration("20260818164923_zeft")]
-    partial class zeft
+    partial class Zeft
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

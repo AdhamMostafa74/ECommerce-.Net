@@ -8,6 +8,7 @@ namespace ECommerce.Domain.Entities.Basket
 
         public Guid Id { get; private set; }
 
+        // 561db659-d9e3-482f-920b-9fd79ee93513 basket test
         public IReadOnlyCollection<BasketItem> Items =>
             _items.AsReadOnly();
 

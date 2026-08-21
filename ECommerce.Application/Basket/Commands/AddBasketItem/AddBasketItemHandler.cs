@@ -1,4 +1,5 @@
-﻿using ECommerce.Application.Products.Errors;
+﻿using ECommerce.Application.Basket.Queries.DTOs;
+using ECommerce.Application.Products.Errors;
 using ECommerce.Domain.Common.Results;
 using ECommerce.Domain.Common.Specifications.ProductsSpecifications;
 using ECommerce.Domain.Entities;
@@ -11,9 +12,9 @@ namespace ECommerce.Application.Basket.Commands.AddBasketItem;
 public sealed class AddBasketItemHandler(
     IRepository<Product> productRepository,
     IBasketRepository basketRepository)
-    : IRequestHandler<AddBasketItemCommand, Result>
+    : IRequestHandler<AddBasketItemCommand, Result<GetBasketResponse>>
 {
-    public async Task<Result> Handle(
+    public async Task<Result<GetBasketResponse>> Handle(
         AddBasketItemCommand request,
         CancellationToken ct)
     {
@@ -22,13 +23,14 @@ public sealed class AddBasketItemHandler(
             ct);
 
         if (product is null)
-            return Result.Failure(ProductErrors.NotFound);
+            return Result<GetBasketResponse>.Failure(
+                ProductErrors.NotFound);
 
         var basket = await basketRepository.GetAsync(
             request.BasketId,
             ct);
 
-        basket ??= new Domain.Entities.Basket.BasketEntity(request.BasketId);
+        basket ??= new BasketEntity(request.BasketId);
 
         var item = new BasketItem(
             product.Id,
@@ -43,6 +45,19 @@ public sealed class AddBasketItemHandler(
             basket,
             ct);
 
-        return Result.Success();
+        var response = new GetBasketResponse(
+            basket.Id,
+            basket.Items.Select(item =>
+                new GetBasketItemResponse(
+                    item.ProductId,
+                    item.ProductName,
+                    item.PictureUrl,
+                    item.Price,
+                    item.Quantity))
+                .ToList(),
+            basket.TotalQuantity,
+            basket.TotalPrice);
+
+        return Result<GetBasketResponse>.Success(response);
     }
 }

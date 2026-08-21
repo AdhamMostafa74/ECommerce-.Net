@@ -34,4 +34,6 @@ public static class BasketErrors
     "Basket.NotFound",
     "The requested basket was not found.",
     ErrorType.NotFound);
+
+ 
 }

@@ -1,6 +1,7 @@
 ﻿using ECommerce.API.Extensions;
 using ECommerce.API.Responses;
 using ECommerce.Application.Basket.Commands.AddBasketItem;
+using ECommerce.Application.Basket.Commands.UpdateBasketItemQuantity;
 using ECommerce.Application.Basket.Queries.DTOs;
 using ECommerce.Application.Basket.Queries.GetBasket;
 using MediatR;
@@ -35,7 +36,7 @@ public static class BasketEndpoints
         .WithName("AddBasketItem")
         .WithSummary("Add a product to the basket")
         .WithDescription("Adds a product to the specified basket.")
-        .Produces<ApiResponse<object?>>(StatusCodes.Status200OK)
+        .Produces<ApiResponse<GetBasketResponse>>(StatusCodes.Status200OK)
         .Produces<ApiResponse<object?>>(StatusCodes.Status400BadRequest)
         .Produces<ApiResponse<object?>>(StatusCodes.Status404NotFound)
         .Produces<ApiResponse<object?>>(StatusCodes.Status500InternalServerError);
@@ -59,6 +60,28 @@ public static class BasketEndpoints
         .Produces<ApiResponse<object>>(StatusCodes.Status404NotFound);
 
 
+        group.MapPut("/{basketId:guid}/items/{productId:guid}", async (
+            Guid basketId,
+            Guid productId,
+            UpdateBasketItemQuantityRequest request,
+            ISender sender,
+            HttpContext context,
+            CancellationToken ct) =>
+                {
+                    var command = new UpdateBasketItemQuantityCommand(
+                        basketId,
+                        productId,
+                        request.Quantity);
+
+                    var result = await sender.Send(command, ct);
+
+                    return result.ToApiResult(context);
+                })
+        .WithName("UpdateBasketItemQuantity")
+        .WithSummary("Update the quantity of a basket item")
+        .Produces<ApiResponse<GetBasketResponse>>(StatusCodes.Status200OK)
+        .Produces<ApiResponse<object>>(StatusCodes.Status400BadRequest)
+        .Produces<ApiResponse<object>>(StatusCodes.Status404NotFound);
 
         return endpoints;
     }
@@ -66,4 +89,7 @@ public static class BasketEndpoints
 
 public sealed record AddBasketItemRequest(
     Guid ProductId,
+    int Quantity);
+
+public sealed record UpdateBasketItemQuantityRequest(
     int Quantity);
