@@ -1,5 +1,4 @@
 ﻿using ECommerce.Application.Common.Pagination;
-using ECommerce.Domain.Common.Specifications;
 using ECommerce.Domain.Entities;
 
 namespace ECommerce.Domain.Common.Specifications.ProductsSpecifications;

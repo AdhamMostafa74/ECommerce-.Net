@@ -1,9 +1,11 @@
-﻿using ECommerce.Application.Types.DTOs;
+﻿
 using ECommerce.Application.Common.Pagination;
+using ECommerce.Application.Types.DTOs;
+using ECommerce.Application.Types.Queries.GetAllTypes;
 using ECommerce.Domain.Common.Results;
 using MediatR;
 
-namespace ECommerce.Application.Types.Queries.GetAllTypes;
+namespace ECommerce.Application.Types.Querires.GetAllTypes;
 
 public sealed class GetAllTypesHandler(
     ITypeQueryService typeQueryService)
@@ -15,8 +17,18 @@ public sealed class GetAllTypesHandler(
         GetAllTypesQuery request,
         CancellationToken ct)
     {
+
+        var validationResult =
+    PaginationValidator.Validate(request.PaginationRequest);
+
+        if (validationResult.IsFailure)
+        {
+            return Result<PaginatedResult<GetAllTypesResponse>>
+                .Failure(validationResult.Error);
+        }
+
         return await typeQueryService.GetAllTypeResponse(
-            request.PaginationRequest,
-            ct);
+             request.PaginationRequest,
+             ct);
     }
 }

@@ -15,6 +15,18 @@ public sealed class GetAllBrandsHandler(
         GetAllBrandsQuery request,
         CancellationToken ct)
     {
+        var validationResult =
+    PaginationValidator.Validate(request.PaginationRequest);
+
+        if (validationResult.IsFailure)
+        {
+            return Result<PaginatedResult<GetAllBrandsResponse>>
+                .Failure(validationResult.Error);
+        }
+
+        return await brandQueryService.GetAllBrandResponse(
+            request.PaginationRequest,
+            ct);
         return await brandQueryService.GetAllBrandResponse(
             request.PaginationRequest,
             ct);

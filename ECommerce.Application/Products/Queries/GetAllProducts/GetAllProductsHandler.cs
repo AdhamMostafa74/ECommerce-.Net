@@ -12,9 +12,18 @@ public sealed class GetAllProductsHandler(
         Result<PaginatedResult<GetAllProductResponse>>>
 {
     public async Task<Result<PaginatedResult<GetAllProductResponse>>> Handle(
-        GetAllProductsQuery request,
-        CancellationToken ct)
+     GetAllProductsQuery request,
+     CancellationToken ct)
     {
+        var validationResult =
+            PaginationValidator.Validate(request.PaginationRequest);
+
+        if (validationResult.IsFailure)
+        {
+            return Result<PaginatedResult<GetAllProductResponse>>
+                .Failure(validationResult.Error);
+        }
+
         return await productQueryService.GetAllProductResponse(
             request.PaginationRequest,
             ct);
