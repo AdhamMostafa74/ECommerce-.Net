@@ -1,13 +1,14 @@
-﻿using ECommerce.Application.Common.Cloudinary;
-
-public interface IImageService
+﻿namespace ECommerce.Application.Common.Cloudinary
 {
-    Task<ImageUploadResult> UploadAsync(
-        Stream image,
-        string fileName,
-        CancellationToken ct = default);
+    public interface IImageService
+    {
+        Task<ImageUploadResult> UploadAsync(
+            Stream image,
+            string fileName,
+            CancellationToken ct = default);
 
-    Task DeleteAsync(
-        string publicId,
-        CancellationToken ct = default);
+        Task DeleteAsync(
+            string publicId,
+            CancellationToken ct = default);
+    }
 }

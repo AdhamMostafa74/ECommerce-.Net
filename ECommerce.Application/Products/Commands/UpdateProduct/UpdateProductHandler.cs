@@ -1,4 +1,5 @@
 ﻿using ECommerce.Application.Brands.Errors;
+using ECommerce.Application.Common.Cloudinary;
 using ECommerce.Application.Products.Errors;
 using ECommerce.Application.Types.Errors;
 using ECommerce.Domain.Common.Results;
@@ -80,9 +81,13 @@ public sealed class UpdateProductHandler(
 
         // ---------- Update Picture ----------
 
+        string? oldPicturePublicId = null;
+
         if (request.Picture is not null)
         {
-            var oldPicturePublicId = product.PicturePublicId;
+            // Keep the old ID so we can delete the old image
+            // after the database update succeeds.
+            oldPicturePublicId = product.PicturePublicId;
 
             var uploadResult = await _imageService.UploadAsync(
                 request.Picture.Content,
@@ -92,13 +97,6 @@ public sealed class UpdateProductHandler(
             product.SetPictureUrl(
                 uploadResult.Url,
                 uploadResult.PublicId);
-
-            if (!string.IsNullOrWhiteSpace(oldPicturePublicId))
-            {
-                await _imageService.DeleteAsync(
-                    oldPicturePublicId,
-                    cancellationToken);
-            }
         }
 
         if (request.Price.HasValue)
@@ -113,6 +111,15 @@ public sealed class UpdateProductHandler(
         // ---------- Persist ----------
 
         await _unitOfWork.SaveChangeAsync(cancellationToken);
+
+        // ---------- Delete Old Picture ----------
+
+        if (!string.IsNullOrWhiteSpace(oldPicturePublicId))
+        {
+            await _imageService.DeleteAsync(
+                oldPicturePublicId,
+                cancellationToken);
+        }
 
         // ---------- Result ----------
 

@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
 using ECommerce.Infrastructure.Presistence.Services.CloudinaryServices;
+using ECommerce.Application.Common.Cloudinary;
 
 namespace ECommerce.Infrastructure;
 

@@ -33,7 +33,8 @@ public sealed class UpdateProductValidator : AbstractValidator<UpdateProductComm
             .When(x => x.Description is not null);
 
         RuleFor(x => x.Picture)
-            .Must(picture => picture!.Content.Length <= MaxFileSize)
+            .Must(picture =>
+                picture!.Content.Length <= MaxFileSize)
             .WithMessage("Picture size must not exceed 5 MB.")
             .When(x => x.Picture is not null);
 

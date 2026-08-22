@@ -115,17 +115,65 @@ public static class ProductEndpoints
         .Produces<ApiResponse<Guid>>(StatusCodes.Status404NotFound)
         .Produces<ApiResponse<Guid>>(StatusCodes.Status409Conflict)
         .Produces<ApiResponse<Guid>>(StatusCodes.Status500InternalServerError);
-
         // ===========================
         // Update Product
         // ===========================
+
         group.MapPatch("/{id:guid}", async (
-        Guid id,
-        [FromForm] UpdateProductRequest request,
-        IMediator mediator,
-        HttpContext context,
-        CancellationToken ct) =>
+            Guid id,
+            [FromForm] UpdateProductRequest request,
+            IMediator mediator,
+            HttpContext context,
+            CancellationToken ct) =>
         {
+            decimal? price = null;
+            Guid? brandId = null;
+            Guid? typeId = null;
+
+            // ---------- Parse Price ----------
+
+            if (!string.IsNullOrWhiteSpace(request.Price))
+            {
+                if (!decimal.TryParse(
+                        request.Price,
+                        out var parsedPrice))
+                {
+                    return Results.BadRequest("Invalid price.");
+                }
+
+                price = parsedPrice;
+            }
+
+            // ---------- Parse Brand Id ----------
+
+            if (!string.IsNullOrWhiteSpace(request.BrandId))
+            {
+                if (!Guid.TryParse(
+                        request.BrandId,
+                        out var parsedBrandId))
+                {
+                    return Results.BadRequest("Invalid brand ID.");
+                }
+
+                brandId = parsedBrandId;
+            }
+
+            // ---------- Parse Type Id ----------
+
+            if (!string.IsNullOrWhiteSpace(request.TypeId))
+            {
+                if (!Guid.TryParse(
+                        request.TypeId,
+                        out var parsedTypeId))
+                {
+                    return Results.BadRequest("Invalid type ID.");
+                }
+
+                typeId = parsedTypeId;
+            }
+
+            // ---------- Convert Picture ----------
+
             FileUpload? fileUpload = null;
 
             if (request.Picture is not null)
@@ -136,21 +184,25 @@ public static class ProductEndpoints
                     request.Picture.ContentType);
             }
 
+            // ---------- Create Command ----------
+
             var command = new UpdateProductCommand(
                 id,
                 request.Name,
                 request.Description,
                 fileUpload,
-                request.Price,
-                request.BrandId,
-                request.TypeId);
+                price,
+                brandId,
+                typeId);
+
+            // ---------- Execute ----------
 
             var result = await mediator.Send(command, ct);
 
             return result.ToApiResult(context);
         })
-            .DisableAntiforgery()
-            .WithName("UpdateProduct")
+        .DisableAntiforgery()
+        .WithName("UpdateProduct")
         .WithSummary("Update a product")
         .WithDescription("Updates one or more fields of an existing product.")
         .Produces<ApiResponse<object?>>(StatusCodes.Status200OK)

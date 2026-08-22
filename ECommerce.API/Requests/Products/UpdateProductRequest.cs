@@ -10,9 +10,9 @@ public sealed class UpdateProductRequest
 
     public IFormFile? Picture { get; set; }
 
-    public decimal? Price { get; set; }
+    public string? Price { get; set; }
 
-    public Guid? BrandId { get; set; }
+    public string? BrandId { get; set; }
 
-    public Guid? TypeId { get; set; }
+    public string? TypeId { get; set; }
 }
