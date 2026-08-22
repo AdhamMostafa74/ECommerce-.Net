@@ -11,10 +11,13 @@ using MediatR;
 
 namespace ECommerce.Application.Products.Commands.UpdateProduct;
 
-public sealed class UpdateProductHandler(IUnitOfWork unitOfWork)
+public sealed class UpdateProductHandler(
+    IUnitOfWork unitOfWork,
+    IImageService imageService)
     : IRequestHandler<UpdateProductCommand, Result>
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IImageService _imageService = imageService;
 
     public async Task<Result> Handle(
         UpdateProductCommand request,
@@ -58,10 +61,11 @@ public sealed class UpdateProductHandler(IUnitOfWork unitOfWork)
         if (!string.IsNullOrWhiteSpace(request.Name))
         {
             var exists = await productRepository.AnyAsync(
-                 new ProductNameSpecification(
-                     request.Name,
-                     request.Id),
-                     cancellationToken);
+                new ProductNameSpecification(
+                    request.Name,
+                    request.Id),
+                cancellationToken);
+
             if (exists)
                 return Result.Failure(ProductErrors.ProductAlreadyExists);
         }
@@ -74,8 +78,28 @@ public sealed class UpdateProductHandler(IUnitOfWork unitOfWork)
         if (!string.IsNullOrWhiteSpace(request.Description))
             product.SetDescription(request.Description);
 
-        if (!string.IsNullOrWhiteSpace(request.PictureUrl))
-            product.SetPictureUrl(request.PictureUrl);
+        // ---------- Update Picture ----------
+
+        if (request.Picture is not null)
+        {
+            var oldPicturePublicId = product.PicturePublicId;
+
+            var uploadResult = await _imageService.UploadAsync(
+                request.Picture.Content,
+                request.Picture.FileName,
+                cancellationToken);
+
+            product.SetPictureUrl(
+                uploadResult.Url,
+                uploadResult.PublicId);
+
+            if (!string.IsNullOrWhiteSpace(oldPicturePublicId))
+            {
+                await _imageService.DeleteAsync(
+                    oldPicturePublicId,
+                    cancellationToken);
+            }
+        }
 
         if (request.Price.HasValue)
             product.ChangePrice(request.Price.Value);
@@ -87,7 +111,6 @@ public sealed class UpdateProductHandler(IUnitOfWork unitOfWork)
             product.ChangeProductType(request.TypeId.Value);
 
         // ---------- Persist ----------
-
 
         await _unitOfWork.SaveChangeAsync(cancellationToken);
 

@@ -1,5 +1,6 @@
 ﻿using ECommerce.API.Extensions;
 using ECommerce.API.Responses;
+using ECommerce.Application.Common.Files;
 using ECommerce.Application.Common.Pagination;
 using ECommerce.Application.Products.Commands.CreateProduct;
 using ECommerce.Application.Products.Commands.DeleteProduct;
@@ -8,6 +9,8 @@ using ECommerce.Application.Products.DTOs;
 using ECommerce.Application.Products.Queries.GetAllProducts;
 using ECommerce.Application.Products.Queries.GetProductById;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using ECommerce.API.Requests.Products;
 
 namespace ECommerce.API.Endpoints;
 
@@ -75,17 +78,35 @@ public static class ProductEndpoints
         // ===========================
         // Create Product
         // ===========================
-
         group.MapPost("/", async (
-            CreateProductCommand command,
-            IMediator mediator,
-            HttpContext context,
-            CancellationToken ct) =>
+     [FromForm] CreateProductRequest request,
+     IMediator mediator,
+     HttpContext context,
+     CancellationToken ct) =>
         {
+            FileUpload? fileUpload = null;
+
+            if (request.Picture is not null)
+            {
+                fileUpload = new FileUpload(
+                    request.Picture.OpenReadStream(),
+                    request.Picture.FileName,
+                    request.Picture.ContentType);
+            }
+
+            var command = new CreateProductCommand(
+                request.ProductName,
+                request.ProductDescription,
+                request.Price,
+                fileUpload!,
+                request.BrandId,
+                request.TypeId);
+
             var result = await mediator.Send(command, ct);
 
             return result.ToApiResult(context);
         })
+        .DisableAntiforgery()
         .WithName("CreateProduct")
         .WithSummary("Create a product")
         .WithDescription("Creates a new product.")
@@ -98,28 +119,38 @@ public static class ProductEndpoints
         // ===========================
         // Update Product
         // ===========================
-
         group.MapPatch("/{id:guid}", async (
-            Guid id,
-            UpdateProductCommand body,
-            IMediator mediator,
-            HttpContext context,
-            CancellationToken ct) =>
+        Guid id,
+        [FromForm] UpdateProductRequest request,
+        IMediator mediator,
+        HttpContext context,
+        CancellationToken ct) =>
         {
+            FileUpload? fileUpload = null;
+
+            if (request.Picture is not null)
+            {
+                fileUpload = new FileUpload(
+                    request.Picture.OpenReadStream(),
+                    request.Picture.FileName,
+                    request.Picture.ContentType);
+            }
+
             var command = new UpdateProductCommand(
                 id,
-                body.Name,
-                body.Description,
-                body.PictureUrl,
-                body.Price,
-                body.BrandId,
-                body.TypeId);
+                request.Name,
+                request.Description,
+                fileUpload,
+                request.Price,
+                request.BrandId,
+                request.TypeId);
 
             var result = await mediator.Send(command, ct);
 
             return result.ToApiResult(context);
         })
-        .WithName("UpdateProduct")
+            .DisableAntiforgery()
+            .WithName("UpdateProduct")
         .WithSummary("Update a product")
         .WithDescription("Updates one or more fields of an existing product.")
         .Produces<ApiResponse<object?>>(StatusCodes.Status200OK)
@@ -127,7 +158,6 @@ public static class ProductEndpoints
         .Produces<ApiResponse<object?>>(StatusCodes.Status404NotFound)
         .Produces<ApiResponse<object?>>(StatusCodes.Status409Conflict)
         .Produces<ApiResponse<object?>>(StatusCodes.Status500InternalServerError);
-
         // ===========================
         // Delete Product
         // ===========================

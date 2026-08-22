@@ -55,5 +55,17 @@ namespace ECommerce.Application.Products.Errors
         public static readonly Error AlreadyRestored = new(
             "Products.Already Restored",
             "The product is already active.", ErrorType.Failure);
+
+        public static readonly Error InvalidPictureUrl =
+    new(
+        "Product.InvalidPictureUrl",
+        "Product picture URL is required.",
+        ErrorType.Validation);
+
+        public static readonly Error InvalidPicturePublicId =
+            new(
+                "Product.InvalidPicturePublicId",
+                "Product picture public ID is required.",
+                ErrorType.Validation);
     }
 }

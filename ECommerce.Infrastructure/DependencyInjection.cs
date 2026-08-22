@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
-using ECommerce.Application.Common.Cloudinary;
 using ECommerce.Infrastructure.Presistence.Services.CloudinaryServices;
 
 namespace ECommerce.Infrastructure;

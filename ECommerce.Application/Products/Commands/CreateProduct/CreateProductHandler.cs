@@ -1,4 +1,5 @@
 ﻿using ECommerce.Application.Brands.Errors;
+using ECommerce.Application.Common.Cloudinary;
 using ECommerce.Application.Products.Errors;
 using ECommerce.Application.Types.Errors;
 using ECommerce.Domain.Common.Results;
@@ -11,10 +12,13 @@ using MediatR;
 
 namespace ECommerce.Application.Products.Commands.CreateProduct;
 
-public sealed class CreateProductHandler(IUnitOfWork unitOfWork)
-        : IRequestHandler<CreateProductCommand, Result<Guid>>
+public sealed class CreateProductHandler(
+    IUnitOfWork unitOfWork,
+    IImageService imageService)
+    : IRequestHandler<CreateProductCommand, Result<Guid>>
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IImageService _imageService = imageService;
 
     public async Task<Result<Guid>> Handle(
         CreateProductCommand request,
@@ -47,12 +51,23 @@ public sealed class CreateProductHandler(IUnitOfWork unitOfWork)
         if (productExists)
             return Result<Guid>.Failure(ProductErrors.ProductAlreadyExists);
 
+        // ---------- Upload Image ----------
+
+        if (request.Picture is null)
+            throw new ArgumentException("Product picture is required.");
+
+        var uploadResult = await _imageService.UploadAsync(
+            request.Picture.Content,
+            request.Picture.FileName,
+            cancellationToken);
+
         // ---------- Create Entity ----------
 
         var product = Product.Create(
             request.ProductName,
             request.ProductDescription,
-            request.PictureUrl,
+            uploadResult.Url,
+            uploadResult.PublicId,
             request.Price,
             request.BrandId,
             request.TypeId);

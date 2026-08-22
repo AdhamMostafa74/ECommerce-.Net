@@ -4,6 +4,15 @@ namespace ECommerce.Application.Products.Commands.UpdateProduct;
 
 public sealed class UpdateProductValidator : AbstractValidator<UpdateProductCommand>
 {
+    private const long MaxFileSize = 5 * 1024 * 1024; // 5 MB
+
+    private static readonly string[] AllowedContentTypes =
+    {
+        "image/jpeg",
+        "image/png",
+        "image/webp"
+    };
+
     public UpdateProductValidator()
     {
         RuleFor(x => x.Id)
@@ -23,10 +32,18 @@ public sealed class UpdateProductValidator : AbstractValidator<UpdateProductComm
             .MaximumLength(1000)
             .When(x => x.Description is not null);
 
-        RuleFor(x => x.PictureUrl)
-            .NotEmpty()
-            .MaximumLength(500)
-            .When(x => x.PictureUrl is not null);
+        RuleFor(x => x.Picture)
+            .Must(picture => picture!.Content.Length <= MaxFileSize)
+            .WithMessage("Picture size must not exceed 5 MB.")
+            .When(x => x.Picture is not null);
+
+        RuleFor(x => x.Picture)
+            .Must(picture =>
+                AllowedContentTypes.Contains(
+                    picture!.ContentType,
+                    StringComparer.OrdinalIgnoreCase))
+            .WithMessage("Only JPEG, PNG, and WebP images are allowed.")
+            .When(x => x.Picture is not null);
 
         RuleFor(x => x.Price)
             .GreaterThan(0)
@@ -41,11 +58,12 @@ public sealed class UpdateProductValidator : AbstractValidator<UpdateProductComm
             .When(x => x.TypeId.HasValue);
     }
 
-    private static bool HaveAtLeastOneFieldToUpdate(UpdateProductCommand command)
+    private static bool HaveAtLeastOneFieldToUpdate(
+        UpdateProductCommand command)
     {
         return command.Name is not null ||
                command.Description is not null ||
-               command.PictureUrl is not null ||
+               command.Picture is not null ||
                command.Price.HasValue ||
                command.BrandId.HasValue ||
                command.TypeId.HasValue;
