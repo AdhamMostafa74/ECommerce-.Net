@@ -27,8 +27,5 @@ public sealed class GetAllBrandsHandler(
         return await brandQueryService.GetAllBrandResponse(
             request.PaginationRequest,
             ct);
-        return await brandQueryService.GetAllBrandResponse(
-            request.PaginationRequest,
-            ct);
     }
 }

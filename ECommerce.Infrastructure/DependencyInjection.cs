@@ -8,10 +8,13 @@ using ECommerce.Infrastructure.Presistence.DataSeeding.Data;
 using ECommerce.Infrastructure.Presistence.Interceptors;
 using ECommerce.Infrastructure.Presistence.Queries;
 using ECommerce.Infrastructure.Presistence.Repositories;
+using ECommerce.Infrastructure.Services.Cloudinary;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
+using ECommerce.Application.Common.Cloudinary;
+using ECommerce.Infrastructure.Presistence.Services.CloudinaryServices;
 
 namespace ECommerce.Infrastructure;
 
@@ -44,6 +47,14 @@ public static class DependencyInjection
         services.AddScoped<Interceptor>();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+
+        // cloudinary
+
+
+        services.Configure<CloudinarySettings>(
+          configuration.GetSection(CloudinarySettings.SectionName));
+        services.AddScoped<IImageService, CloudinaryImageService>();
 
         //redis
 
