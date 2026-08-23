@@ -32,19 +32,6 @@ public sealed class UpdateProductValidator : AbstractValidator<UpdateProductComm
             .MaximumLength(1000)
             .When(x => x.Description is not null);
 
-        RuleFor(x => x.Picture)
-            .Must(picture =>
-                picture!.Content.Length <= MaxFileSize)
-            .WithMessage("Picture size must not exceed 5 MB.")
-            .When(x => x.Picture is not null);
-
-        RuleFor(x => x.Picture)
-            .Must(picture =>
-                AllowedContentTypes.Contains(
-                    picture!.ContentType,
-                    StringComparer.OrdinalIgnoreCase))
-            .WithMessage("Only JPEG, PNG, and WebP images are allowed.")
-            .When(x => x.Picture is not null);
 
         RuleFor(x => x.Price)
             .GreaterThan(0)
@@ -64,7 +51,6 @@ public sealed class UpdateProductValidator : AbstractValidator<UpdateProductComm
     {
         return command.Name is not null ||
                command.Description is not null ||
-               command.Picture is not null ||
                command.Price.HasValue ||
                command.BrandId.HasValue ||
                command.TypeId.HasValue;

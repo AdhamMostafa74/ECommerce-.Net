@@ -73,31 +73,12 @@ public sealed class UpdateProductHandler(
 
         // ---------- Update Entity ----------
 
+
         if (!string.IsNullOrWhiteSpace(request.Name))
             product.SetName(request.Name);
 
         if (!string.IsNullOrWhiteSpace(request.Description))
             product.SetDescription(request.Description);
-
-        // ---------- Update Picture ----------
-
-        string? oldPicturePublicId = null;
-
-        if (request.Picture is not null)
-        {
-            // Keep the old ID so we can delete the old image
-            // after the database update succeeds.
-            oldPicturePublicId = product.PicturePublicId;
-
-            var uploadResult = await _imageService.UploadAsync(
-                request.Picture.Content,
-                request.Picture.FileName,
-                cancellationToken);
-
-            product.SetPictureUrl(
-                uploadResult.Url,
-                uploadResult.PublicId);
-        }
 
         if (request.Price.HasValue)
             product.ChangePrice(request.Price.Value);
@@ -111,15 +92,6 @@ public sealed class UpdateProductHandler(
         // ---------- Persist ----------
 
         await _unitOfWork.SaveChangeAsync(cancellationToken);
-
-        // ---------- Delete Old Picture ----------
-
-        if (!string.IsNullOrWhiteSpace(oldPicturePublicId))
-        {
-            await _imageService.DeleteAsync(
-                oldPicturePublicId,
-                cancellationToken);
-        }
 
         // ---------- Result ----------
 

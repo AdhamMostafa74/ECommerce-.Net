@@ -119,89 +119,26 @@ public static class ProductEndpoints
         // Update Product
         // ===========================
 
+
         group.MapPatch("/{id:guid}", async (
             Guid id,
-            [FromForm] UpdateProductRequest request,
+            UpdateProductRequest request,
             IMediator mediator,
             HttpContext context,
             CancellationToken ct) =>
         {
-            decimal? price = null;
-            Guid? brandId = null;
-            Guid? typeId = null;
-
-            // ---------- Parse Price ----------
-
-            if (!string.IsNullOrWhiteSpace(request.Price))
-            {
-                if (!decimal.TryParse(
-                        request.Price,
-                        out var parsedPrice))
-                {
-                    return Results.BadRequest("Invalid price.");
-                }
-
-                price = parsedPrice;
-            }
-
-            // ---------- Parse Brand Id ----------
-
-            if (!string.IsNullOrWhiteSpace(request.BrandId))
-            {
-                if (!Guid.TryParse(
-                        request.BrandId,
-                        out var parsedBrandId))
-                {
-                    return Results.BadRequest("Invalid brand ID.");
-                }
-
-                brandId = parsedBrandId;
-            }
-
-            // ---------- Parse Type Id ----------
-
-            if (!string.IsNullOrWhiteSpace(request.TypeId))
-            {
-                if (!Guid.TryParse(
-                        request.TypeId,
-                        out var parsedTypeId))
-                {
-                    return Results.BadRequest("Invalid type ID.");
-                }
-
-                typeId = parsedTypeId;
-            }
-
-            // ---------- Convert Picture ----------
-
-            FileUpload? fileUpload = null;
-
-            if (request.Picture is not null)
-            {
-                fileUpload = new FileUpload(
-                    request.Picture.OpenReadStream(),
-                    request.Picture.FileName,
-                    request.Picture.ContentType);
-            }
-
-            // ---------- Create Command ----------
-
             var command = new UpdateProductCommand(
                 id,
                 request.Name,
                 request.Description,
-                fileUpload,
-                price,
-                brandId,
-                typeId);
-
-            // ---------- Execute ----------
+                request.Price,
+                request.BrandId,
+                request.TypeId);
 
             var result = await mediator.Send(command, ct);
 
             return result.ToApiResult(context);
         })
-        .DisableAntiforgery()
         .WithName("UpdateProduct")
         .WithSummary("Update a product")
         .WithDescription("Updates one or more fields of an existing product.")
@@ -210,6 +147,50 @@ public static class ProductEndpoints
         .Produces<ApiResponse<object?>>(StatusCodes.Status404NotFound)
         .Produces<ApiResponse<object?>>(StatusCodes.Status409Conflict)
         .Produces<ApiResponse<object?>>(StatusCodes.Status500InternalServerError);
+
+
+        // ===========================
+        // Update Product Picture
+        // ===========================
+
+
+
+        group.MapPut("/{id:guid}/picture", async (
+    Guid id,
+    [FromForm] UpdateProductPictureRequest request,
+    IMediator mediator,
+    HttpContext context,
+    CancellationToken ct) =>
+        {
+            if (request.Picture is null)
+            {
+                return Results.BadRequest(new
+                {
+                    Message = "Picture is required."
+                });
+            }
+
+            var fileUpload = new FileUpload(
+                request.Picture.OpenReadStream(),
+                request.Picture.FileName,
+                request.Picture.ContentType);
+
+            var command = new UpdateProductPictureCommand(
+                id,
+                fileUpload);
+
+            var result = await mediator.Send(command, ct);
+
+            return result.ToApiResult(context);
+        })
+.DisableAntiforgery()
+.WithName("UpdateProductPicture")
+.WithSummary("Update a product picture")
+.WithDescription("Replaces the existing product picture.")
+.Produces<ApiResponse<object?>>(StatusCodes.Status200OK)
+.Produces<ApiResponse<object?>>(StatusCodes.Status400BadRequest)
+.Produces<ApiResponse<object?>>(StatusCodes.Status404NotFound)
+.Produces<ApiResponse<object?>>(StatusCodes.Status500InternalServerError);
         // ===========================
         // Delete Product
         // ===========================
