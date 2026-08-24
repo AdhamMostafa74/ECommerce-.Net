@@ -1,4 +1,5 @@
-﻿using ECommerce.Application.Brands;
+﻿#region:Imports 
+using ECommerce.Application.Brands;
 using ECommerce.Application.Products;
 using ECommerce.Application.Types;
 using ECommerce.Domain.Repositories;
@@ -15,7 +16,10 @@ using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
 using ECommerce.Infrastructure.Presistence.Services.CloudinaryServices;
 using ECommerce.Application.Common.Cloudinary;
+using ECommerce.Infrastructure.Identity;
+using Microsoft.AspNetCore.Identity;
 
+#endregion
 namespace ECommerce.Infrastructure;
 
 public static class DependencyInjection
@@ -71,6 +75,13 @@ public static class DependencyInjection
 
         services.AddSingleton<IConnectionMultiplexer>(
             ConnectionMultiplexer.Connect(redisOptions));
+
+        // Identity
+
+        services
+            .AddIdentityCore<ApplicationUser>()
+            .AddRoles<IdentityRole<Guid>>()
+            .AddEntityFrameworkStores<ECommerceDbContext>();
 
         services.AddScoped<IBasketRepository, RedisBasketRepository>();
 
