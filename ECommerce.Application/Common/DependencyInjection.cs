@@ -1,4 +1,5 @@
-﻿using Mapster;
+﻿using ECommerce.Application.Common.Mapping;
+using Mapster;
 using MapsterMapper;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;

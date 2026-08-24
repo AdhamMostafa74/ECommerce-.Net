@@ -1,24 +1,28 @@
 ﻿#region:Imports 
 using ECommerce.Application.Brands;
+using ECommerce.Application.Common.Cloudinary;
+using ECommerce.Application.Common.Identity;
 using ECommerce.Application.Products;
 using ECommerce.Application.Types;
 using ECommerce.Domain.Repositories;
+using ECommerce.Infrastructure.Authentication;
 using ECommerce.Infrastructure.Data.DbContexts;
+using ECommerce.Infrastructure.Identity;
 using ECommerce.Infrastructure.Presistence.DataSeeding;
 using ECommerce.Infrastructure.Presistence.DataSeeding.Data;
 using ECommerce.Infrastructure.Presistence.Interceptors;
 using ECommerce.Infrastructure.Presistence.Queries;
 using ECommerce.Infrastructure.Presistence.Repositories;
+using ECommerce.Infrastructure.Presistence.Services.CloudinaryServices;
 using ECommerce.Infrastructure.Services.Cloudinary;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
-using ECommerce.Infrastructure.Presistence.Services.CloudinaryServices;
-using ECommerce.Application.Common.Cloudinary;
-using ECommerce.Infrastructure.Identity;
-using Microsoft.AspNetCore.Identity;
-
+using System.Text;
 #endregion
 namespace ECommerce.Infrastructure;
 
@@ -84,6 +88,47 @@ public static class DependencyInjection
             .AddEntityFrameworkStores<ECommerceDbContext>();
 
         services.AddScoped<IBasketRepository, RedisBasketRepository>();
+
+
+        //JWT
+
+        services
+            .AddOptions<JwtSettings>()
+            .BindConfiguration(JwtSettings.SectionName)
+            .Validate(
+                settings => !string.IsNullOrWhiteSpace(settings.SecretKey),
+                "JWT secret key is required.")
+            .ValidateOnStart();
+
+        services
+            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                var jwtSettings = configuration
+                    .GetSection(JwtSettings.SectionName)
+                    .Get<JwtSettings>()
+                    ?? throw new InvalidOperationException(
+                        "JWT settings are not configured.");
+
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = jwtSettings.Issuer,
+
+                    ValidateAudience = true,
+                    ValidAudience = jwtSettings.Audience,
+
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
+
+                    ValidateLifetime = true,
+
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
+        services.AddScoped<IJwtTokenService, JwtTokenService>();
+
 
         return services;
     }

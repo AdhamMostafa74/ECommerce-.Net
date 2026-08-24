@@ -4,7 +4,7 @@ using ECommerce.Application.Types.DTOs;
 using ECommerce.Domain.Entities;
 using Mapster;
 
-namespace ECommerce.Application.Common;
+namespace ECommerce.Application.Common.Mapping;
 
 public class MappingConfiguration : IRegister
 {
