@@ -128,7 +128,7 @@ public static class DependencyInjection
                 };
             });
         services.AddScoped<IJwtTokenService, JwtTokenService>();
-
+        services.AddScoped<IIdentityService, IdentityService>();
 
         return services;
     }

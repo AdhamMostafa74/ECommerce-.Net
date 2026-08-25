@@ -1,7 +1,7 @@
 ﻿using ECommerce.Domain.Common.Results;
 using MediatR;
 
-namespace ECommerce.Application.Common.Identity.Commands.Login;
+namespace ECommerce.Application.Authentication.Commands.Login;
 
 public sealed record LoginCommand(
     string Email,

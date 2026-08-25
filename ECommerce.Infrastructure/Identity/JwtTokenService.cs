@@ -1,5 +1,6 @@
 ﻿using ECommerce.Application.Common.Identity;
 using ECommerce.Infrastructure.Authentication;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -8,10 +9,10 @@ using System.Text;
 namespace ECommerce.Infrastructure.Identity;
 
 public sealed class JwtTokenService(
-    JwtSettings jwtSettings)
+    IOptions<JwtSettings> options)
     : IJwtTokenService
 {
-    private readonly JwtSettings _jwtSettings = jwtSettings;
+    private readonly JwtSettings _jwtSettings = options.Value;
 
     public string GenerateToken(
         Guid userId,

@@ -39,6 +39,7 @@ public static class ProductEndpoints
 
             return result.ToApiResult(context);
         })
+        .RequireAuthorization()
         .WithName("GetProducts")
         .WithSummary("Retrieve all products")
         .WithDescription("Returns a paginated list of available products.")

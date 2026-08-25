@@ -8,6 +8,7 @@
         Conflict,
         Unauthorized,
         Forbidden,
-        Failure
+        Failure,
+        Authentication
     }
 }
