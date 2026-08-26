@@ -43,11 +43,12 @@ public sealed class IdentityService(
 
         return roles.ToList();
     }
+
     public async Task<(bool Success, Guid UserId, IReadOnlyList<string> Errors)> CreateUserAsync(
-      string email,
-      string userName,
-      string password,
-      CancellationToken cancellationToken = default)
+        string email,
+        string userName,
+        string password,
+        CancellationToken cancellationToken = default)
     {
         var user = new ApplicationUser
         {
@@ -57,13 +58,28 @@ public sealed class IdentityService(
 
         var result = await _userManager.CreateAsync(user, password);
 
-        if (result.Succeeded)
-            return (true, user.Id, []);
+        if (!result.Succeeded)
+        {
+            var errors = result.Errors
+                .Select(error => error.Description)
+                .ToList();
 
-        var errors = result.Errors
-            .Select(error => error.Description)
-            .ToList();
+            return (false, Guid.Empty, errors);
+        }
 
-        return (false, Guid.Empty, errors);
+        var roleResult = await _userManager.AddToRoleAsync(
+            user,
+            "Customer");
+
+        if (!roleResult.Succeeded)
+        {
+            var errors = roleResult.Errors
+                .Select(error => error.Description)
+                .ToList();
+
+            return (false, Guid.Empty, errors);
+        }
+
+        return (true, user.Id, []);
     }
 }
