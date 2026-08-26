@@ -87,6 +87,10 @@ public static class DependencyInjection
             .AddIdentityCore<ApplicationUser>()
             .AddRoles<IdentityRole<Guid>>()
             .AddEntityFrameworkStores<ECommerceDbContext>();
+        services.Configure<IdentityOptions>(options =>
+        {
+            options.User.RequireUniqueEmail = true;
+        });
 
         services.AddScoped<IBasketRepository, RedisBasketRepository>();
 

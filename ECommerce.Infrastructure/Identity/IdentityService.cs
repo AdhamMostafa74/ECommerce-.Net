@@ -1,4 +1,6 @@
-﻿using ECommerce.Application.Common.Identity;
+﻿using ECommerce.Application.Authentication.Errors;
+using ECommerce.Application.Common.Identity;
+using ECommerce.Domain.Common;
 using Microsoft.AspNetCore.Identity;
 
 namespace ECommerce.Infrastructure.Identity;
@@ -44,7 +46,7 @@ public sealed class IdentityService(
         return roles.ToList();
     }
 
-    public async Task<(bool Success, Guid UserId, IReadOnlyList<string> Errors)> CreateUserAsync(
+    public async Task<(bool Success, Guid UserId, Error? Error)> CreateUserAsync(
         string email,
         string userName,
         string password,
@@ -60,11 +62,9 @@ public sealed class IdentityService(
 
         if (!result.Succeeded)
         {
-            var errors = result.Errors
-                .Select(error => error.Description)
-                .ToList();
+            var error = MapIdentityError(result.Errors);
 
-            return (false, Guid.Empty, errors);
+            return (false, Guid.Empty, error);
         }
 
         var roleResult = await _userManager.AddToRoleAsync(
@@ -73,13 +73,34 @@ public sealed class IdentityService(
 
         if (!roleResult.Succeeded)
         {
-            var errors = roleResult.Errors
-                .Select(error => error.Description)
-                .ToList();
+            await _userManager.DeleteAsync(user);
 
-            return (false, Guid.Empty, errors);
+            return (
+                false,
+                Guid.Empty,
+                AuthenticationErrors.RegistrationFailed);
         }
 
-        return (true, user.Id, []);
+        return (true, user.Id, null);
+    }
+
+    private static Error MapIdentityError(
+        IEnumerable<IdentityError> errors)
+    {
+        var errorList = errors.ToList();
+
+        if (errorList.Any(error =>
+            error.Code == "DuplicateUserName"))
+        {
+            return AuthenticationErrors.UsernameAlreadyExists;
+        }
+
+        if (errorList.Any(error =>
+            error.Code == "DuplicateEmail"))
+        {
+            return AuthenticationErrors.EmailAlreadyExists;
+        }
+
+        return AuthenticationErrors.InvalidRegistrationData;
     }
 }

@@ -1,8 +1,5 @@
-﻿using ECommerce.Application.Authentication.Errors;
-using ECommerce.Application.Common.Identity;
-using ECommerce.Domain.Common;
+﻿using ECommerce.Application.Common.Identity;
 using ECommerce.Domain.Common.Results;
-using ECommerce.Domain.Common.Types;
 using MediatR;
 
 namespace ECommerce.Application.Authentication.Commands.Register;
@@ -22,10 +19,11 @@ public sealed class RegisterHandler(
             request.UserName,
             request.Password,
             cancellationToken);
+
         if (!result.Success)
         {
             return Result<Guid>.Failure(
-                AuthenticationErrors.RegistrationFailed);
+                result.Error!);
         }
 
         return Result<Guid>.Success(result.UserId);

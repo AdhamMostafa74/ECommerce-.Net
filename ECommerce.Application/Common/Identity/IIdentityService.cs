@@ -1,4 +1,6 @@
-﻿namespace ECommerce.Application.Common.Identity;
+﻿using ECommerce.Domain.Common;
+
+namespace ECommerce.Application.Common.Identity;
 
 public interface IIdentityService
 {
@@ -11,9 +13,9 @@ public interface IIdentityService
         Guid userId,
         CancellationToken cancellationToken = default);
 
-    Task<(bool Success, Guid UserId, IReadOnlyList<string> Errors)> CreateUserAsync(
-    string email,
-    string userName,
-    string password,
-    CancellationToken cancellationToken = default);
+    Task<(bool Success, Guid UserId, Error? Error)> CreateUserAsync(
+        string email,
+        string userName,
+        string password,
+        CancellationToken cancellationToken = default);
 }
