@@ -21,7 +21,7 @@ public sealed class GetAllBrandsHandler(
         if (validationResult.IsFailure)
         {
             return Result<PaginatedResult<GetAllBrandsResponse>>
-                .Failure(validationResult.Error);
+                .Failure(validationResult.Errors);
         }
 
         return await brandQueryService.GetAllBrandResponse(

@@ -21,7 +21,7 @@ public sealed class GetAllProductsHandler(
         if (validationResult.IsFailure)
         {
             return Result<PaginatedResult<GetAllProductResponse>>
-                .Failure(validationResult.Error);
+                .Failure(validationResult.Errors);
         }
 
         return await productQueryService.GetAllProductResponse(

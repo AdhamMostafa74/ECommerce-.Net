@@ -6,8 +6,12 @@ public sealed class Result<T> : Result
 {
     private readonly T? _value;
 
-    internal Result(T? value, bool isSuccess, Error error, SuccessType successType)
-        : base(isSuccess, error)
+    internal Result(
+        T? value,
+        bool isSuccess,
+        IReadOnlyList<Error> errors,
+        SuccessType successType)
+        : base(isSuccess, errors, successType)
     {
         _value = value;
     }
@@ -15,31 +19,48 @@ public sealed class Result<T> : Result
     public T Value =>
         IsSuccess
             ? _value!
-            : throw new InvalidOperationException("Cannot access value of a failed result.");
-
-
+            : throw new InvalidOperationException(
+                "Cannot access value of a failed result.");
 
     public static Result<T> Success(T value)
-        => new(value, true, Error.None, SuccessType.Accepted);
+        => new(
+            value,
+            true,
+            [],
+            SuccessType.Accepted);
 
     public static new Result<T> Failure(Error error)
-        => new(default!, false, error, SuccessType.Accepted);
+        => new(
+            default,
+            false,
+            new[] { error },
+            SuccessType.Accepted);
+
+    public static new Result<T> Failure(IEnumerable<Error> errors)
+        => new(
+            default,
+            false,
+            [.. errors],
+            SuccessType.Accepted);
 
     public TResult Match<TResult>(
-    Func<T, TResult> onSuccess,
-    Func<Error, TResult> onFailure)
+        Func<T, TResult> onSuccess,
+        Func<IReadOnlyList<Error>, TResult> onFailure)
     {
         return IsSuccess
             ? onSuccess(Value)
-            : onFailure(Error);
+            : onFailure(Errors);
     }
 
     public override string ToString()
     {
         return IsSuccess
             ? $"Success ({Value})"
-            : $"Failure ({Error.Code}): {Error.Description}";
+            : $"Failure: {string.Join(
+                ", ",
+                Errors.Select(e => $"({e.Code}): {e.Description}"))}";
     }
 
-    public static implicit operator Result<T>(T value) => Success(value);
+    public static implicit operator Result<T>(T value)
+        => Success(value);
 }

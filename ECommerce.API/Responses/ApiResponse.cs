@@ -10,7 +10,7 @@ public sealed class ApiResponse<T>
 
     public T? Data { get; init; }
 
-    public Error? Error { get; init; }
+    public IReadOnlyList<Error>? Errors { get; init; }
 
     public ApiMeta Meta { get; init; } = new();
 
@@ -25,7 +25,7 @@ public sealed class ApiResponse<T>
             Success = true,
             Message = message,
             Data = data,
-            Error = null,
+            Errors = null,
             Meta = new ApiMeta
             {
                 TraceId = context.TraceIdentifier,
@@ -35,15 +35,17 @@ public sealed class ApiResponse<T>
     }
 
     public static ApiResponse<T> ApiFailure(
-        Error error,
+        IReadOnlyList<Error> errors,
         HttpContext context)
     {
         return new ApiResponse<T>
         {
             Success = false,
-            Message = error.Description,
+            Message = errors.Count > 0
+                ? errors[0].Description
+                : "An error occurred.",
             Data = default,
-            Error = error,
+            Errors = errors,
             Meta = new ApiMeta
             {
                 TraceId = context.TraceIdentifier

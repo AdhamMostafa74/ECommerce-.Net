@@ -24,7 +24,7 @@ public sealed class GetAllTypesHandler(
         if (validationResult.IsFailure)
         {
             return Result<PaginatedResult<GetAllTypesResponse>>
-                .Failure(validationResult.Error);
+                .Failure(validationResult.Errors);
         }
 
         return await typeQueryService.GetAllTypeResponse(

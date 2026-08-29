@@ -22,10 +22,10 @@ public static class ResultExtensions
         }
 
         var errorResponse = ApiResponse<T>.ApiFailure(
-            result.Error,
+            result.Errors,
             context);
 
-        return result.Error.Type switch
+        return result.Errors[0].Type switch
         {
             ErrorType.NotFound =>
                 Results.NotFound(errorResponse),
@@ -74,10 +74,10 @@ public static class ResultExtensions
         }
 
         var errorResponse = ApiResponse<IReadOnlyList<T>>.ApiFailure(
-            result.Error,
+            result.Errors,
             context);
 
-        return result.Error.Type switch
+        return result.Errors[0].Type switch
         {
             ErrorType.NotFound =>
                 Results.NotFound(errorResponse),
@@ -120,10 +120,10 @@ public static class ResultExtensions
         }
 
         var errorResponse = ApiResponse<object?>.ApiFailure(
-            result.Error,
+            result.Errors,
             context);
 
-        return result.Error.Type switch
+        return result.Errors[0].Type switch
         {
             ErrorType.NotFound =>
                 Results.NotFound(errorResponse),
