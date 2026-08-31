@@ -1,8 +1,6 @@
-﻿
-using ECommerce.Domain.Common.Results;
+﻿using ECommerce.Domain.Common.Results;
 using MediatR;
 
 namespace ECommerce.Application.Products.Commands.DeleteProduct;
 
-public sealed record DeleteProductCommand(Guid Id): IRequest<Result>;
-
+public sealed record DeleteProductCommand(Guid Id) : IRequest<Result<Unit>>;

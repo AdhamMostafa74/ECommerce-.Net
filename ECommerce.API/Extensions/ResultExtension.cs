@@ -105,50 +105,5 @@ public static class ResultExtensions
         };
     }
 
-    public static IResult ToApiResult(
-    this Result result,
-    HttpContext context)
-    {
-        if (result.IsSuccess)
-        {
-            var response = ApiResponse<object?>.ApiSuccess(
-                null,
-                "Operation completed successfully.",
-                context);
-
-            return Results.Ok(response);
-        }
-
-        var errorResponse = ApiResponse<object?>.ApiFailure(
-            result.Errors,
-            context);
-
-        return result.Errors[0].Type switch
-        {
-            ErrorType.NotFound =>
-                Results.NotFound(errorResponse),
-
-            ErrorType.Validation =>
-                Results.BadRequest(errorResponse),
-
-            ErrorType.Conflict =>
-                Results.Conflict(errorResponse),
-
-            ErrorType.Unauthorized =>
-                Results.Json(
-                    errorResponse,
-                    statusCode: StatusCodes.Status401Unauthorized),
-
-            ErrorType.Forbidden =>
-                Results.Json(
-                    errorResponse,
-                    statusCode: StatusCodes.Status403Forbidden),
-
-            _ =>
-                Results.Json(
-                    errorResponse,
-                    statusCode: StatusCodes.Status500InternalServerError)
-        };
-    }
 
 }

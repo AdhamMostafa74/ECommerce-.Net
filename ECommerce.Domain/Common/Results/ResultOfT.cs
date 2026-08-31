@@ -2,19 +2,37 @@
 
 namespace ECommerce.Domain.Common.Results;
 
-public sealed class Result<T> : Result
+public sealed class Result<T>
 {
     private readonly T? _value;
 
-    internal Result(
+    private Result(
         T? value,
         bool isSuccess,
         IReadOnlyList<Error> errors,
         SuccessType successType)
-        : base(isSuccess, errors, successType)
     {
+        if (isSuccess && errors.Count > 0)
+            throw new InvalidOperationException(
+                "A successful result cannot contain errors.");
+
+        if (!isSuccess && errors.Count == 0)
+            throw new InvalidOperationException(
+                "A failure result must contain at least one error.");
+
         _value = value;
+        IsSuccess = isSuccess;
+        Errors = errors;
+        SuccessType = successType;
     }
+
+    public bool IsSuccess { get; }
+
+    public bool IsFailure => !IsSuccess;
+
+    public IReadOnlyList<Error> Errors { get; }
+
+    public SuccessType SuccessType { get; }
 
     public T Value =>
         IsSuccess
@@ -29,14 +47,14 @@ public sealed class Result<T> : Result
             [],
             SuccessType.Accepted);
 
-    public static new Result<T> Failure(Error error)
+    public static Result<T> Failure(Error error)
         => new(
             default,
             false,
-            new[] { error },
+            [error],
             SuccessType.Accepted);
 
-    public static new Result<T> Failure(IEnumerable<Error> errors)
+    public static Result<T> Failure(IEnumerable<Error> errors)
         => new(
             default,
             false,

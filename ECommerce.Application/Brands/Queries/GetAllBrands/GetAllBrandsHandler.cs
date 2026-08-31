@@ -1,5 +1,6 @@
 ﻿using ECommerce.Application.Brands.DTOs;
 using ECommerce.Application.Common.Pagination;
+using ECommerce.Domain.Common.Pagination;
 using ECommerce.Domain.Common.Results;
 using MediatR;
 
