@@ -2,7 +2,6 @@
 using ECommerce.Application.Common.Pagination;
 using ECommerce.Application.Types.DTOs;
 using ECommerce.Application.Types.Queries.GetAllTypes;
-using ECommerce.Domain.Common.Pagination;
 using ECommerce.Domain.Common.Results;
 using MediatR;
 

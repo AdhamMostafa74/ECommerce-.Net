@@ -10,4 +10,4 @@ public sealed record UpdateProductCommand(
     decimal? Price,
     Guid? BrandId,
     Guid? TypeId
-) : IRequest<Result>;
+)  : IRequest<Result<bool>>;

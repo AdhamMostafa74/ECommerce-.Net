@@ -5,4 +5,4 @@ using MediatR;
 public sealed record UpdateProductPictureCommand(
     Guid ProductId,
     FileUpload Picture
-) : IRequest<Result>;
+) : IRequest<Result<bool>>;

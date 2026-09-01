@@ -15,12 +15,12 @@ namespace ECommerce.Application.Products.Commands.UpdateProduct;
 public sealed class UpdateProductHandler(
     IUnitOfWork unitOfWork,
     IImageService imageService)
-    : IRequestHandler<UpdateProductCommand, Result>
+    : IRequestHandler<UpdateProductCommand, Result<bool>>
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IImageService _imageService = imageService;
 
-    public async Task<Result> Handle(
+    public async Task<Result<bool>> Handle(
         UpdateProductCommand request,
         CancellationToken cancellationToken)
     {
@@ -35,7 +35,7 @@ public sealed class UpdateProductHandler(
             cancellationToken);
 
         if (product is null)
-            return Result.Failure(ProductErrors.NotFound);
+            return Result<bool>.Failure(ProductErrors.NotFound);
 
         // ---------- Business Validation ----------
 
@@ -46,7 +46,7 @@ public sealed class UpdateProductHandler(
                 cancellationToken);
 
             if (!brandExists)
-                return Result.Failure(BrandErrors.NotFound);
+                return Result<bool>.Failure(BrandErrors.NotFound);
         }
 
         if (request.TypeId.HasValue)
@@ -56,7 +56,7 @@ public sealed class UpdateProductHandler(
                 cancellationToken);
 
             if (!typeExists)
-                return Result.Failure(TypeErrors.NotFound);
+                return Result<bool>.Failure(TypeErrors.NotFound);
         }
 
         if (!string.IsNullOrWhiteSpace(request.Name))
@@ -68,11 +68,11 @@ public sealed class UpdateProductHandler(
                 cancellationToken);
 
             if (exists)
-                return Result.Failure(ProductErrors.ProductAlreadyExists);
+                return Result<bool>.Failure(
+                    ProductErrors.ProductAlreadyExists);
         }
 
         // ---------- Update Entity ----------
-
 
         if (!string.IsNullOrWhiteSpace(request.Name))
             product.SetName(request.Name);
@@ -95,6 +95,6 @@ public sealed class UpdateProductHandler(
 
         // ---------- Result ----------
 
-        return Result.Success();
+        return Result<bool>.Success(true);
     }
 }

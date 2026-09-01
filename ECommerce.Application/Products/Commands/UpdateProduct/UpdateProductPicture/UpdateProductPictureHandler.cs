@@ -11,12 +11,12 @@ namespace ECommerce.Application.Products.Commands.UpdateProductPicture;
 public sealed class UpdateProductPictureHandler(
     IUnitOfWork unitOfWork,
     IImageService imageService)
-    : IRequestHandler<UpdateProductPictureCommand, Result>
+    : IRequestHandler<UpdateProductPictureCommand, Result<bool>>
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IImageService _imageService = imageService;
 
-    public async Task<Result> Handle(
+    public async Task<Result<bool>> Handle(
         UpdateProductPictureCommand request,
         CancellationToken cancellationToken)
     {
@@ -29,7 +29,7 @@ public sealed class UpdateProductPictureHandler(
             cancellationToken);
 
         if (product is null)
-            return Result.Failure(ProductErrors.NotFound);
+            return Result<bool>.Failure(ProductErrors.NotFound);
 
         // ---------- Keep Old Picture ----------
 
@@ -76,6 +76,6 @@ public sealed class UpdateProductPictureHandler(
                 cancellationToken);
         }
 
-        return Result.Success();
+        return Result<bool>.Success(true);
     }
 }
