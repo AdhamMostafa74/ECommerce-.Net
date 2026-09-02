@@ -24,6 +24,7 @@ using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
 using System.Text;
 #endregion
+
 namespace ECommerce.Infrastructure;
 
 public static class DependencyInjection
@@ -33,39 +34,43 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         services.AddDbContext<ECommerceDbContext>((sp, options) =>
-              {
-                  options.UseSqlServer(
-                      configuration.GetConnectionString("DefaultConnection"));
-                  options.AddInterceptors(
-                      sp.GetRequiredService<Interceptor>()
-                      );
+        {
+            options.UseSqlServer(
+                configuration.GetConnectionString("DefaultConnection"));
 
-              });
+            options.AddInterceptors(
+                sp.GetRequiredService<Interceptor>());
+        });
 
-        services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+        services.AddScoped(
+            typeof(IRepository<>),
+            typeof(Repository<>));
+
         services.AddScoped<IDataSeeder, RoleSeeder>();
         services.AddScoped<IDataSeeder, ProductBrandSeeder>();
         services.AddScoped<IDataSeeder, ProductTypeSeeder>();
         services.AddScoped<IDataSeeder, ProductSeeder>();
+
         services.AddScoped<IProductQueryService, ProductQueryService>();
         services.AddScoped<IBrandQueryService, BrandQueryService>();
         services.AddScoped<ITypeQueryService, TypeQueryService>();
-
 
         services.AddScoped<DatabaseSeeder>();
         services.AddScoped<Interceptor>();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-
-        // cloudinary
-
+        // Cloudinary
 
         services.Configure<CloudinarySettings>(
-          configuration.GetSection(CloudinarySettings.SectionName));
-        services.AddScoped<IImageService, CloudinaryImageService>();
+            configuration.GetSection(
+                CloudinarySettings.SectionName));
 
-        //redis
+        services.AddScoped<
+            IImageService,
+            CloudinaryImageService>();
+
+        // Redis
 
         var redisOptions = new ConfigurationOptions
         {
@@ -77,7 +82,6 @@ public static class DependencyInjection
             configuration["Redis:Host"]!,
             int.Parse(configuration["Redis:Port"]!));
 
-
         services.AddSingleton<IConnectionMultiplexer>(
             ConnectionMultiplexer.Connect(redisOptions));
 
@@ -87,26 +91,31 @@ public static class DependencyInjection
             .AddIdentityCore<ApplicationUser>()
             .AddRoles<IdentityRole<Guid>>()
             .AddEntityFrameworkStores<ECommerceDbContext>();
+
         services.Configure<IdentityOptions>(options =>
         {
             options.User.RequireUniqueEmail = true;
         });
 
-        services.AddScoped<IBasketRepository, RedisBasketRepository>();
+        services.AddScoped<
+            IBasketRepository,
+            RedisBasketRepository>();
 
-
-        //JWT
+        // JWT
 
         services
             .AddOptions<JwtSettings>()
             .BindConfiguration(JwtSettings.SectionName)
             .Validate(
-                settings => !string.IsNullOrWhiteSpace(settings.SecretKey),
+                settings =>
+                    !string.IsNullOrWhiteSpace(
+                        settings.SecretKey),
                 "JWT secret key is required.")
             .ValidateOnStart();
 
         services
-            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddAuthentication(
+                JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
                 var jwtSettings = configuration
@@ -115,25 +124,42 @@ public static class DependencyInjection
                     ?? throw new InvalidOperationException(
                         "JWT settings are not configured.");
 
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidIssuer = jwtSettings.Issuer,
+                options.TokenValidationParameters =
+                    new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidIssuer = jwtSettings.Issuer,
 
-                    ValidateAudience = true,
-                    ValidAudience = jwtSettings.Audience,
+                        ValidateAudience = true,
+                        ValidAudience = jwtSettings.Audience,
 
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey =
+                            new SymmetricSecurityKey(
+                                Encoding.UTF8.GetBytes(
+                                    jwtSettings.SecretKey)),
 
-                    ValidateLifetime = true,
+                        ValidateLifetime = true,
 
-                    ClockSkew = TimeSpan.Zero
-                };
+                        ClockSkew = TimeSpan.Zero
+                    };
             });
-        services.AddScoped<IJwtTokenService, JwtTokenService>();
-        services.AddScoped<IIdentityService, IdentityService>();
+
+        // Current authenticated user
+
+        services.AddHttpContextAccessor();
+
+        services.AddScoped<
+            ICurrentUser,
+            CurrentUser>();
+
+        services.AddScoped<
+            IJwtTokenService,
+            JwtTokenService>();
+
+        services.AddScoped<
+            IIdentityService,
+            IdentityService>();
 
         return services;
     }

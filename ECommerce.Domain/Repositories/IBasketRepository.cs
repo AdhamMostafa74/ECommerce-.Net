@@ -5,14 +5,15 @@ namespace ECommerce.Domain.Repositories;
 public interface IBasketRepository
 {
     Task<BasketEntity?> GetAsync(
-        Guid basketId,
+        Guid userId,
         CancellationToken ct = default);
 
     Task SaveAsync(
+        Guid userId,
         BasketEntity basket,
         CancellationToken ct = default);
 
     Task DeleteAsync(
-        Guid basketId,
+        Guid userId,
         CancellationToken ct = default);
 }

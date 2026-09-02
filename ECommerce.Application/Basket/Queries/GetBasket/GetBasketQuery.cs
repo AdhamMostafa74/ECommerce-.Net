@@ -5,6 +5,5 @@ using MediatR;
 
 namespace ECommerce.Application.Basket.Queries.GetBasket;
 
-public sealed record GetBasketQuery(
-    Guid BasketId
-) : IRequest<Result<GetBasketResponse>>;
+public sealed record GetBasketQuery
+    : IRequest<Result<GetBasketResponse>>;

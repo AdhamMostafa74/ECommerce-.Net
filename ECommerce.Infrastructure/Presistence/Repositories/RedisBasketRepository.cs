@@ -4,78 +4,71 @@ using StackExchange.Redis;
 using System.Text.Json;
 using ECommerce.Infrastructure.Presistence.Redis.Models;
 
-namespace ECommerce.Infrastructure.Presistence.Repositories
+namespace ECommerce.Infrastructure.Presistence.Repositories;
+
+public sealed class RedisBasketRepository(
+    IConnectionMultiplexer redis) : IBasketRepository
 {
-    public sealed class RedisBasketRepository(
-        IConnectionMultiplexer redis) : IBasketRepository
+    private readonly IDatabase _database = redis.GetDatabase();
 
+    // Create Redis key for user's basket
+    private static string GetKey(Guid userId)
+        => $"basket:{userId}";
 
+    public async Task<BasketEntity?> GetAsync(
+        Guid userId,
+        CancellationToken ct = default)
     {
-        private readonly IDatabase _database = redis.GetDatabase();
+        var key = GetKey(userId);
 
-        // create redis key for basket
+        var basketData = await _database.StringGetAsync(key);
 
-        private static string GetKey(Guid basketId)
-    => $"basket:{basketId}";
+        if (!basketData.HasValue)
+            return null;
 
+        var data = JsonSerializer.Deserialize<RedisBasketModel>(
+            basketData.ToString());
 
-        public async Task<BasketEntity?> GetAsync(
-      Guid basketId,
-      CancellationToken ct = default)
+        if (data is null)
+            return null;
+
+        var basket = new BasketEntity(data.Id);
+
+        foreach (var item in data.Items)
         {
-            var key = GetKey(basketId);
-
-
-            var basketData = await _database.StringGetAsync(key);
-
-
-            if (!basketData.HasValue)
-                return null;
-
-            var data = JsonSerializer.Deserialize<RedisBasketModel>(
-                basketData.ToString());
-            if (data is null)
-                return null;
-
-            var basket = new BasketEntity(data.Id);
-
-            foreach (var item in data.Items)
-            {
-
-                basket.AddItem(
-                    new BasketItem(
-                        item.ProductId,
-                        item.ProductName,
-                        item.PictureUrl,
-                        item.Price,
-                        item.Quantity));
-               
-            }
-
-            return basket;
+            basket.AddItem(
+                new BasketItem(
+                    item.ProductId,
+                    item.ProductName,
+                    item.PictureUrl,
+                    item.Price,
+                    item.Quantity));
         }
 
-        public async Task SaveAsync(
-             BasketEntity basket,
-             CancellationToken ct = default)
-        {
-            var key = GetKey(basket.Id);
+        return basket;
+    }
 
-            var basketData = JsonSerializer.Serialize(basket);
+    public async Task SaveAsync(
+        Guid userId,
+        BasketEntity basket,
+        CancellationToken ct = default)
+    {
+        var key = GetKey(userId);
 
-            await _database.StringSetAsync(
-                key,
-                basketData,
-                TimeSpan.FromDays(7));
+        var basketData = JsonSerializer.Serialize(basket);
 
-            var savedBasket = await _database.StringGetAsync(key);
+        await _database.StringSetAsync(
+            key,
+            basketData,
+            TimeSpan.FromDays(7));
+    }
 
-        }
+    public Task DeleteAsync(
+        Guid userId,
+        CancellationToken ct = default)
+    {
+        var key = GetKey(userId);
 
-        public Task DeleteAsync(Guid basketId, CancellationToken ct = default)
-        {
-            var key = GetKey(basketId);
-            return _database.KeyDeleteAsync(key);
-        }
+        return _database.KeyDeleteAsync(key);
     }
 }
