@@ -1,5 +1,6 @@
 ﻿using ECommerce.Application.Basket.Errors;
 using ECommerce.Application.Basket.Queries.DTOs;
+using ECommerce.Application.Common.Identity;
 using ECommerce.Domain.Common.Results;
 using ECommerce.Domain.Repositories;
 using MediatR;
@@ -7,7 +8,8 @@ using MediatR;
 namespace ECommerce.Application.Basket.Commands.ClearBasket;
 
 public sealed class ClearBasketHandler(
-    IBasketRepository basketRepository)
+    IBasketRepository basketRepository,
+    ICurrentUser currentUser)
     : IRequestHandler<ClearBasketCommand, Result<GetBasketResponse>>
 {
     public async Task<Result<GetBasketResponse>> Handle(
@@ -15,7 +17,7 @@ public sealed class ClearBasketHandler(
         CancellationToken ct)
     {
         var basket = await basketRepository.GetAsync(
-            request.BasketId,
+            currentUser.UserId,
             ct);
 
         if (basket is null)
@@ -25,7 +27,7 @@ public sealed class ClearBasketHandler(
         basket.Clear();
 
         await basketRepository.DeleteAsync(
-            request.BasketId,
+            currentUser.UserId,
             ct);
 
         var response = new GetBasketResponse(

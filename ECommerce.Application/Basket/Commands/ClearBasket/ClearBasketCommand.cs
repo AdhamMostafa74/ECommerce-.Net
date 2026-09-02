@@ -4,6 +4,5 @@ using MediatR;
 
 namespace ECommerce.Application.Basket.Commands.ClearBasket;
 
-public sealed record ClearBasketCommand(
-    Guid BasketId
-) : IRequest<Result<GetBasketResponse>>;
+public sealed record ClearBasketCommand
+    : IRequest<Result<GetBasketResponse>>;

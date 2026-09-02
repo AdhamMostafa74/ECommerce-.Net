@@ -1,4 +1,5 @@
 ﻿using ECommerce.Application.Basket.Queries.DTOs;
+using ECommerce.Application.Common.Identity;
 using ECommerce.Application.Products.Errors;
 using ECommerce.Domain.Common.Results;
 using ECommerce.Domain.Common.Specifications.ProductsSpecifications;
@@ -11,7 +12,8 @@ namespace ECommerce.Application.Basket.Commands.AddBasketItem;
 
 public sealed class AddBasketItemHandler(
     IRepository<Product> productRepository,
-    IBasketRepository basketRepository)
+    IBasketRepository basketRepository,
+    ICurrentUser currentUser)
     : IRequestHandler<AddBasketItemCommand, Result<GetBasketResponse>>
 {
     public async Task<Result<GetBasketResponse>> Handle(
@@ -27,10 +29,10 @@ public sealed class AddBasketItemHandler(
                 ProductErrors.NotFound);
 
         var basket = await basketRepository.GetAsync(
-            request.BasketId,
+            currentUser.UserId,
             ct);
 
-        basket ??= new BasketEntity(request.BasketId);
+        basket ??= new BasketEntity(Guid.NewGuid());
 
         var item = new BasketItem(
             product.Id,
@@ -42,6 +44,7 @@ public sealed class AddBasketItemHandler(
         basket.AddItem(item);
 
         await basketRepository.SaveAsync(
+            currentUser.UserId,
             basket,
             ct);
 

@@ -7,9 +7,7 @@ public sealed class RemoveBasketItemValidator
 {
     public RemoveBasketItemValidator()
     {
-        RuleFor(x => x.BasketId)
-            .NotEmpty()
-            .WithMessage("Basket ID is required.");
+    
 
         RuleFor(x => x.ProductId)
             .NotEmpty()

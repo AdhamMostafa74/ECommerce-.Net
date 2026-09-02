@@ -13,9 +13,9 @@ public sealed class CurrentUser(
     {
         get
         {
-            var userId = httpContextAccessor.HttpContext?
-                .User
-                .FindFirstValue(JwtRegisteredClaimNames.Sub);
+            var user = httpContextAccessor.HttpContext?.User;
+            var userId = user?
+                .FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (!Guid.TryParse(userId, out var id))
                 throw new UnauthorizedAccessException(
