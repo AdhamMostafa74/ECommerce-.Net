@@ -1,5 +1,6 @@
-﻿using ECommerce.Domain.Common.Results;
-using ECommerce.Domain.Common;
+﻿using ECommerce.Domain.Common;
+using ECommerce.Domain.Common.Results;
+using ECommerce.Domain.Common.Types;
 
 namespace ECommerce.Application.Common.Results;
 
@@ -24,11 +25,8 @@ public sealed class ResultFactory : IResultFactory
                 $"Expected Result<T>, but received {resultType.Name}.");
         }
 
-        var genericArgument =
-            resultType.GetGenericArguments()[0];
-
         var failureMethod =
-            genericTypeDefinition.GetMethod(
+            resultType.GetMethod(
                 nameof(Result<object>.Failure),
                 [typeof(IEnumerable<Error>)]);
 
@@ -38,10 +36,7 @@ public sealed class ResultFactory : IResultFactory
                 "Could not find Result<T>.Failure method.");
         }
 
-        var genericFailureMethod =
-            failureMethod.MakeGenericMethod(genericArgument);
-
-        return genericFailureMethod.Invoke(
+        return failureMethod.Invoke(
             null,
             [errors])!;
     }
