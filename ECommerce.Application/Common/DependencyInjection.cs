@@ -1,6 +1,11 @@
-﻿using ECommerce.Application.Common.Mapping;
+﻿using ECommerce.Application.Common.Behaviors;
+using ECommerce.Application.Common.Mapping;
+using ECommerce.Application.Common.Results;
+using ECommerce.Application.Products.Commands.CreateProduct;
+using FluentValidation;
 using Mapster;
 using MapsterMapper;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
@@ -19,6 +24,14 @@ public static class DependencyInjection
         services.AddMediatR(cfg =>
             cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
+        services.AddValidatorsFromAssembly(
+     typeof(CreateProductValidator).Assembly);
+
+        services.AddTransient<IResultFactory, ResultFactory>();
+
+        services.AddTransient(
+            typeof(IPipelineBehavior<,>),
+            typeof(ValidationBehavior<,>));
         return services;
     }
 }
