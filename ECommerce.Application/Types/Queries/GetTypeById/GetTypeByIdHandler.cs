@@ -1,5 +1,5 @@
 ﻿using ECommerce.Application.Types.DTOs;
-using ECommerce.Application.Types.Querires.GetTypeById;
+using ECommerce.Application.Types.Queries.GetTypeById;
 using ECommerce.Domain.Common.Results;
 using MediatR;
 

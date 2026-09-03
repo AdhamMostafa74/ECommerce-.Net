@@ -5,7 +5,7 @@ using ECommerce.Application.Types.Queries.GetAllTypes;
 using ECommerce.Domain.Common.Results;
 using MediatR;
 
-namespace ECommerce.Application.Types.Querires.GetAllTypes;
+namespace ECommerce.Application.Types.Queries.GetAllTypes;
 
 public sealed class GetAllTypesHandler(
     ITypeQueryService typeQueryService)

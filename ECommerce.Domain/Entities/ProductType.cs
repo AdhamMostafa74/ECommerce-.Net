@@ -9,19 +9,20 @@ public class ProductType : BaseEntity
 
     private ProductType() { }
 
-
-
-
     public static ProductType Create(Guid id, string name)
     {
-
         if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("Product type name is required.");  
+            throw new ArgumentException(
+                "Product type name is required.");
+
         if (id == Guid.Empty)
-            throw new ArgumentException("Please enter an Id", nameof(id));
+            throw new ArgumentException(
+                "Please enter an Id",
+                nameof(id));
+
         return new()
         {
-            Id=id,
+            Id = id,
             Name = name.Trim()
         };
     }
@@ -29,8 +30,14 @@ public class ProductType : BaseEntity
     public void Rename(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("Product type name is required.");
+            throw new ArgumentException(
+                "Product type name is required.");
 
         Name = name.Trim();
+    }
+
+    public void DeleteType()
+    {
+        MarkAsDeleted(Environment.UserName);
     }
 }

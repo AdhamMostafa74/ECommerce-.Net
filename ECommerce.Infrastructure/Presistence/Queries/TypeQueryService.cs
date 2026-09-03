@@ -10,38 +10,91 @@ using ECommerce.Infrastructure.Presistence.Common;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 
-
 namespace ECommerce.Infrastructure.Presistence.Queries;
 
-public class TypeQueryService(IRepository<ProductType> _repo) : ITypeQueryService
+public class TypeQueryService(IRepository<ProductType> repo)
+    : ITypeQueryService
 {
-    public async Task<Result<PaginatedResult<GetAllTypesResponse>>> GetAllTypeResponse(
-        PaginationRequest paginationRequest,
-        CancellationToken ct = default)
+    public async Task<
+        Result<PaginatedResult<GetAllTypesResponse>>>
+        GetAllTypeResponse(
+            PaginationRequest paginationRequest,
+            CancellationToken ct = default)
     {
         var spec = new ProductTypesSpecification();
-        var response = await _repo
+
+        var types = await repo
             .ApplySpecification(spec)
             .AsNoTracking()
             .ProjectToType<GetAllTypesResponse>()
-            .ToPaginatedResultAsync(paginationRequest, ct);
+            .ToPaginatedResultAsync(
+                paginationRequest,
+                ct);
 
-        return Result<PaginatedResult<GetAllTypesResponse>>.Success(response);
+        return Result<PaginatedResult<GetAllTypesResponse>>
+            .Success(types);
     }
 
-    public async Task<Result<GetByIdTypeResponse>> GetByIdTypeResponse(
-        Guid id,
-        CancellationToken ct = default)
+    public async Task<
+        Result<PaginatedResult<GetAllTypesResponse>>>
+        GetDeletedTypeResponse(
+            PaginationRequest paginationRequest,
+            CancellationToken ct = default)
+    {
+        var spec = new DeletedProductTypesSpecification();
+
+        var types = await repo
+            .ApplySpecification(spec)
+            .AsNoTracking()
+            .ProjectToType<GetAllTypesResponse>()
+            .ToPaginatedResultAsync(
+                paginationRequest,
+                ct);
+
+        return Result<PaginatedResult<GetAllTypesResponse>>
+            .Success(types);
+    }
+
+    public async Task<
+        Result<PaginatedResult<GetAllTypesResponse>>>
+        GetAllTypesIncludingDeletedResponse(
+            PaginationRequest paginationRequest,
+            CancellationToken ct = default)
+    {
+        var spec = new AllProductTypesSpecification();
+
+        var types = await repo
+            .ApplySpecification(spec)
+            .AsNoTracking()
+            .ProjectToType<GetAllTypesResponse>()
+            .ToPaginatedResultAsync(
+                paginationRequest,
+                ct);
+
+        return Result<PaginatedResult<GetAllTypesResponse>>
+            .Success(types);
+    }
+
+    public async Task<Result<GetByIdTypeResponse>>
+        GetByIdTypeResponse(
+            Guid id,
+            CancellationToken ct = default)
     {
         var spec = new ProductTypeByIdSpecification(id);
-        var response = await _repo
+
+        var type = await repo
             .ApplySpecification(spec)
             .AsNoTracking()
             .ProjectToType<GetByIdTypeResponse>()
             .FirstOrDefaultAsync(ct);
 
-        return response is null
-            ? Result<GetByIdTypeResponse>.Failure(TypeErrors.NotFound)
-            : Result<GetByIdTypeResponse>.Success(response);
+        if (type is null)
+        {
+            return Result<GetByIdTypeResponse>
+                .Failure(TypeErrors.NotFound);
+        }
+
+        return Result<GetByIdTypeResponse>
+            .Success(type);
     }
 }

@@ -3,13 +3,11 @@ using ECommerce.Domain.Entities;
 
 namespace ECommerce.Domain.Common.Specifications.TypesSpecifications;
 
-public sealed class ProductTypesSpecification
+public sealed class AllProductTypesSpecification
     : BaseSpecification<ProductType>
 {
-    public ProductTypesSpecification()
+    public AllProductTypesSpecification()
     {
-        AddCriteria(t => !t.IsDeleted);
-
         ApplyOrderBy(t => t.Name);
     }
 }
