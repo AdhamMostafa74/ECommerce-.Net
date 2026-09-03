@@ -76,7 +76,7 @@ public sealed class CreateProductHandler(
 
         productRepository.Create(product);
 
-        await _unitOfWork.SaveChangeAsync(cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         // ---------- Result ----------
 

@@ -19,7 +19,7 @@ public class UnitOfWork(ECommerceDbContext db) : IUnitOfWork
         return newRepo;
     }
 
-    public async Task<int> SaveChangeAsync(CancellationToken ct = default)
+    public async Task<int> SaveChangesAsync(CancellationToken ct = default)
     {
         return await db.SaveChangesAsync(ct);
     }

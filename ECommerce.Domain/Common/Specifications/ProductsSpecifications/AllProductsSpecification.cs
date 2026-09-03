@@ -3,12 +3,11 @@ using ECommerce.Domain.Entities;
 
 namespace ECommerce.Domain.Common.Specifications.ProductsSpecifications;
 
-public sealed class ProductsSpecification : BaseSpecification<Product>
+public sealed class AllProductsSpecification
+    : BaseSpecification<Product>
 {
-    public ProductsSpecification(PaginationRequest pagination)
+    public AllProductsSpecification(PaginationRequest pagination)
     {
-        AddCriteria(p => !p.IsDeleted);
-
         AddInclude(p => p.ProductBrand);
         AddInclude(p => p.ProductType);
 

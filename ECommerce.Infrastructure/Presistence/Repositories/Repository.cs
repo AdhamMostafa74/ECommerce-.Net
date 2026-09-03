@@ -57,11 +57,6 @@ public class Repository<T>(ECommerceDbContext context) : IRepository<T>
         _context.Set<T>().Update(entity);
     }
 
-    public void Delete(T entity)
-    {
-        _context.Set<T>().Remove(entity);
-    }
-
     public IQueryable<T> ApplySpecification(ISpecification<T> specification)
     {
         return SpecificationEvaluator.GetQuery(

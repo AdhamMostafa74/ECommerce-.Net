@@ -26,10 +26,9 @@ public sealed class DeleteProductHandler(IUnitOfWork unitOfWork)
         {
             return Result<Unit>.Failure(ProductErrors.NotFound);
         }
+        product.DeleteProduct();
 
-        productRepository.Delete(product);
-
-        await _unitOfWork.SaveChangeAsync(cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result<Unit>.Success(Unit.Value);
     }

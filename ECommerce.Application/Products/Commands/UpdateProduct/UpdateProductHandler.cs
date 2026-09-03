@@ -91,7 +91,7 @@ public sealed class UpdateProductHandler(
 
         // ---------- Persist ----------
 
-        await _unitOfWork.SaveChangeAsync(cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         // ---------- Result ----------
 

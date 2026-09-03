@@ -52,7 +52,7 @@ public sealed class UpdateProductPictureHandler(
 
             // ---------- Persist ----------
 
-            await _unitOfWork.SaveChangeAsync(cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
         catch
         {

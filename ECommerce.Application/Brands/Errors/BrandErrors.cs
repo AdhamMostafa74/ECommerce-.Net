@@ -14,5 +14,12 @@ namespace ECommerce.Application.Brands.Errors
             "ProductBrand.AlreadyExists",
             "A brand with the same name already exists.",
             ErrorType.Conflict);
+
+        public static readonly Error BrandInUse = new(
+            "ProductBrand.AlreadyExists",
+            "A brand with the same name already exists.",
+            ErrorType.Conflict);
     }
+
+
 }

@@ -1,4 +1,5 @@
 ﻿using ECommerce.API.Extensions;
+using ECommerce.API.Requests.Products;
 using ECommerce.API.Responses;
 using ECommerce.Application.Common.Files;
 using ECommerce.Application.Common.Pagination;
@@ -7,10 +8,11 @@ using ECommerce.Application.Products.Commands.DeleteProduct;
 using ECommerce.Application.Products.Commands.UpdateProduct;
 using ECommerce.Application.Products.DTOs;
 using ECommerce.Application.Products.Queries.GetAllProducts;
+using ECommerce.Application.Products.Queries.GetAllProductsIncludingDeleted;
+using ECommerce.Application.Products.Queries.GetDeletedProducts;
 using ECommerce.Application.Products.Queries.GetProductById;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using ECommerce.API.Requests.Products;
 
 namespace ECommerce.API.Endpoints;
 
@@ -44,6 +46,64 @@ public static class ProductEndpoints
         .WithDescription("Returns a paginated list of available products.")
         .Produces<ApiResponse<PaginatedResult<GetAllProductResponse>>>(
             StatusCodes.Status200OK)
+        .Produces<ApiResponse<PaginatedResult<GetAllProductResponse>>>(
+            StatusCodes.Status500InternalServerError);
+
+        // ===========================
+        // Get Deleted Products
+        // ===========================
+
+        group.MapGet("/deleted", async (
+            [AsParameters] PaginationRequest pagination,
+            IMediator mediator,
+            HttpContext context,
+            CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetDeletedProductsQuery(pagination),
+                ct);
+
+            return result.ToApiResult(context);
+        })
+        .RequireAuthorization(policy =>
+            policy.RequireRole("Admin"))
+        .WithName("GetDeletedProducts")
+        .WithSummary("Retrieve deleted products")
+        .WithDescription("Returns a paginated list of soft-deleted products.")
+        .Produces<ApiResponse<PaginatedResult<GetAllProductResponse>>>(
+            StatusCodes.Status200OK)
+        .Produces<ApiResponse<PaginatedResult<GetAllProductResponse>>>(
+            StatusCodes.Status400BadRequest)
+        .Produces<ApiResponse<PaginatedResult<GetAllProductResponse>>>(
+            StatusCodes.Status500InternalServerError);
+
+
+        // ===========================
+        // Get All Products Including Deleted
+        // ===========================
+
+        group.MapGet("/all", async (
+            [AsParameters] PaginationRequest pagination,
+            IMediator mediator,
+            HttpContext context,
+            CancellationToken ct) =>
+        {
+            var result = await mediator.Send(
+                new GetAllProductsIncludingDeletedQuery(pagination),
+                ct);
+
+            return result.ToApiResult(context);
+        })
+        .RequireAuthorization(policy =>
+            policy.RequireRole("Admin"))
+        .WithName("GetAllProductsIncludingDeleted")
+        .WithSummary("Retrieve all products including deleted")
+        .WithDescription(
+            "Returns a paginated list containing both active and soft-deleted products.")
+        .Produces<ApiResponse<PaginatedResult<GetAllProductResponse>>>(
+            StatusCodes.Status200OK)
+        .Produces<ApiResponse<PaginatedResult<GetAllProductResponse>>>(
+            StatusCodes.Status400BadRequest)
         .Produces<ApiResponse<PaginatedResult<GetAllProductResponse>>>(
             StatusCodes.Status500InternalServerError);
 

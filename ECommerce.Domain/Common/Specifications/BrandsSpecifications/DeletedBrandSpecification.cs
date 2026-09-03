@@ -3,13 +3,13 @@ using ECommerce.Domain.Entities;
 
 namespace ECommerce.Domain.Common.Specifications.BrandsSpecifications;
 
-public sealed class BrandByIdSpecification
+public sealed class DeletedBrandsSpecification
     : BaseSpecification<ProductBrand>
 {
-    public BrandByIdSpecification(Guid id)
+    public DeletedBrandsSpecification()
     {
-        AddCriteria(b =>
-            b.Id == id &&
-            !b.IsDeleted);
+        AddCriteria(b => b.IsDeleted);
+
+        ApplyOrderBy(b => b.Name);
     }
 }
