@@ -53,5 +53,6 @@ app.MapProductEndpoints();
 app.MapTypeEndpoints();
 app.MapBrandEndpoints();
 app.MapBasketEndpoints();
+app.MapBasketEndpoints();
 app.MapAuthenticationEndpoints();
 app.Run();

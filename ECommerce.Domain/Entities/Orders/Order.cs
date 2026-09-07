@@ -1,4 +1,6 @@
-﻿namespace ECommerce.Domain.Entities.Orders;
+﻿using ECommerce.Domain.Entities;
+
+namespace ECommerce.Domain.Entities.Orders;
 
 public class Order : BaseEntity
 {
@@ -14,14 +16,22 @@ public class Order : BaseEntity
 
     public Address ShippingAddress { get; private set; } = null!;
 
-    public IReadOnlyCollection<OrderItem> Items => _items.AsReadOnly();
+    public IReadOnlyCollection<OrderItem> Items =>
+        _items.AsReadOnly();
 
-    private Order() { }
+    private Order()
+    {
+    }
 
     private Order(
         Guid customerId,
         Address shippingAddress)
     {
+        if (customerId == Guid.Empty)
+            throw new ArgumentException(
+                "Customer ID is required.",
+                nameof(customerId));
+
         CustomerId = customerId;
         ShippingAddress = shippingAddress;
         Status = OrderStatus.Pending;
@@ -31,11 +41,51 @@ public class Order : BaseEntity
         Guid customerId,
         Address shippingAddress)
     {
-        return new Order(customerId, shippingAddress);
+        return new Order(
+            customerId,
+            shippingAddress);
     }
 
-    public void AddItem(OrderItem item)
+    public void AddItem(
+        Guid productId,
+        string productName,
+        string pictureUrl,
+        decimal unitPrice,
+        int quantity)
     {
+        if (productId == Guid.Empty)
+            throw new ArgumentException(
+                "Product ID is required.",
+                nameof(productId));
+
+        if (string.IsNullOrWhiteSpace(productName))
+            throw new ArgumentException(
+                "Product name is required.",
+                nameof(productName));
+
+        if (string.IsNullOrWhiteSpace(pictureUrl))
+            throw new ArgumentException(
+                "Picture URL is required.",
+                nameof(pictureUrl));
+
+        if (unitPrice <= 0)
+            throw new ArgumentException(
+                "Unit price must be greater than zero.",
+                nameof(unitPrice));
+
+        if (quantity <= 0)
+            throw new ArgumentException(
+                "Quantity must be greater than zero.",
+                nameof(quantity));
+
+        var item = new OrderItem(
+            Id,
+            productId,
+            productName,
+            pictureUrl,
+            unitPrice,
+            quantity);
+
         _items.Add(item);
 
         RecalculateTotals();

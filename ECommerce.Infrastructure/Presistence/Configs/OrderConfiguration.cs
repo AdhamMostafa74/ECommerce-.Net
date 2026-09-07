@@ -62,6 +62,8 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
                 .HasMaxLength(100)
                 .IsRequired();
         });
+        builder.Property(x => x.TotalQuantity)
+    .IsRequired();
 
         builder.HasMany(x => x.Items)
             .WithOne()
