@@ -1,23 +1,23 @@
-﻿using ECommerce.Domain.Entities;
+﻿using ECommerce.Application.Common.Identity;
+using ECommerce.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace ECommerce.Infrastructure.Presistence.Interceptors;
 
-public class SoftDeleteInterceptor : ISoftDeleteInterceptor
+public class SoftDeleteInterceptor(
+    ICurrentUser currentUser) : ISoftDeleteInterceptor
 {
     public void Apply(DbContext db)
     {
         foreach (var entry in db.ChangeTracker.Entries<BaseEntity>())
         {
-
             if (entry.State != EntityState.Deleted)
                 continue;
 
             entry.State = EntityState.Modified;
-            entry.Entity.MarkAsDeleted(Environment.UserName);
+
+            entry.Entity.MarkAsDeleted(
+                currentUser.UserId.ToString());
         }
-
     }
-
-
 }

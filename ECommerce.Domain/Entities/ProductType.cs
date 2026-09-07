@@ -36,8 +36,8 @@ public class ProductType : BaseEntity
         Name = name.Trim();
     }
 
-    public void DeleteType()
+    public void DeleteType(string? user)
     {
-        MarkAsDeleted(Environment.UserName);
+        MarkAsDeleted(user);
     }
 }

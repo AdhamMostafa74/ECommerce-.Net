@@ -31,8 +31,8 @@ public class ProductBrand : BaseEntity
 
         Name = name.Trim();
     }
-    public void DeleteBrand()
+    public void DeleteBrand(string? user)
     {
-        MarkAsDeleted(Environment.UserName);
+        MarkAsDeleted(user);
     }
 }

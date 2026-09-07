@@ -134,13 +134,13 @@ public class Product : BaseEntity
         ProductTypeId = productTypeId;
     }
 
-    public void DeleteProduct()
+    public void DeleteProduct(string? user)
     {
-        MarkAsDeleted(Environment.UserName);
+        MarkAsDeleted(user);
     }
 
-    public void RestoreProduct()
+    public void RestoreProduct(string? user)
     {
-        Restore(Environment.UserName);
+        Restore(user);
     }
 }
