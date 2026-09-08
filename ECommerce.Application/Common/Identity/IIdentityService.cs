@@ -1,4 +1,5 @@
-﻿using ECommerce.Domain.Common;
+﻿
+using ECommerce.Domain.Common;
 
 namespace ECommerce.Application.Common.Identity;
 
@@ -17,5 +18,9 @@ public interface IIdentityService
         string email,
         string userName,
         string password,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> DeleteUserAsync(
+        Guid userId,
         CancellationToken cancellationToken = default);
 }

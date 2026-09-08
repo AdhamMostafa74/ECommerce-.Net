@@ -1,9 +1,11 @@
-﻿namespace ECommerce.Domain.Entities;
+﻿
+namespace ECommerce.Domain.Entities;
 
 public class Address
 {
     public string FirstName { get; private set; } = string.Empty;
     public string LastName { get; private set; } = string.Empty;
+    public string PhoneNumber { get; private set; } = string.Empty;
     public string Street { get; private set; } = string.Empty;
     public string City { get; private set; } = string.Empty;
     public string State { get; private set; } = string.Empty;
@@ -15,6 +17,7 @@ public class Address
     public Address(
         string firstName,
         string lastName,
+        string phoneNumber,
         string street,
         string city,
         string state,
@@ -23,6 +26,7 @@ public class Address
     {
         FirstName = firstName.Trim();
         LastName = lastName.Trim();
+        PhoneNumber = phoneNumber.Trim();
         Street = street.Trim();
         City = city.Trim();
         State = state.Trim();
@@ -30,3 +34,4 @@ public class Address
         Country = country.Trim();
     }
 }
+

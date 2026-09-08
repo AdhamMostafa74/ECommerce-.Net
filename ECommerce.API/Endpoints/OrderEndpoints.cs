@@ -6,10 +6,10 @@ using MediatR;
 namespace ECommerce.API.Endpoints;
 
 public static class OrderEndpoints
-{
+    {
     public static IEndpointRouteBuilder MapOrderEndpoints(
         this IEndpointRouteBuilder endpoints)
-    {
+        {
         var group = endpoints
             .MapGroup("/api/v1/orders")
             .WithTags("Orders")
@@ -22,9 +22,6 @@ public static class OrderEndpoints
             CancellationToken ct) =>
         {
             var command = new CreateOrderCommand(
-                request.FirstName,
-                request.LastName,
-                request.PhoneNumber,
                 request.Street,
                 request.City,
                 request.State,
@@ -40,7 +37,7 @@ public static class OrderEndpoints
         .WithName("CreateOrder")
         .WithSummary("Create an order from the current user's basket")
         .WithDescription(
-            "Creates an order using the authenticated user's basket and the current product prices.")
+            "Creates an order using the authenticated user's basket, customer profile, and supplied shipping details.")
         .Produces<ApiResponse<Guid>>(
             StatusCodes.Status200OK)
         .Produces<ApiResponse<Guid>>(
@@ -53,13 +50,10 @@ public static class OrderEndpoints
             StatusCodes.Status500InternalServerError);
 
         return endpoints;
+        }
     }
-}
 
 public sealed record CreateOrderRequest(
-    string FirstName,
-    string LastName,
-    string PhoneNumber,
     string Street,
     string City,
     string State,

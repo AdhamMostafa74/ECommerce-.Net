@@ -7,7 +7,6 @@ using ECommerce.Domain.Common.Specifications.BrandsSpecifications;
 using ECommerce.Domain.Common.Specifications.TypesSpecifications;
 using ECommerce.Domain.Entities;
 using ECommerce.Domain.Repositories;
-
 using MediatR;
 
 namespace ECommerce.Application.Products.Commands.CreateProduct;
@@ -35,51 +34,71 @@ public sealed class CreateProductHandler(
             cancellationToken);
 
         if (!brandExists)
-            return Result<Guid>.Failure(BrandErrors.AlreadyExists);
+            return Result<Guid>.Failure(BrandErrors.NotFound);
 
         var typeExists = await typeRepository.AnyAsync(
             new ProductTypeByIdSpecification(request.TypeId),
             cancellationToken);
 
         if (!typeExists)
-            return Result<Guid>.Failure(TypeErrors.AlreadyExists);
+            return Result<Guid>.Failure(TypeErrors.NotFound);
 
         var productExists = await productRepository.AnyAsync(
             new ProductNameSpecification(request.ProductName),
             cancellationToken);
 
         if (productExists)
-            return Result<Guid>.Failure(ProductErrors.ProductAlreadyExists);
+            return Result<Guid>.Failure(
+                ProductErrors.ProductAlreadyExists);
 
-        // ---------- Upload Image ----------
+        // ---------- Validate Picture ----------
 
         if (request.Picture is null)
-            throw new ArgumentException("Product picture is required.");
+            throw new ArgumentException(
+                "Product picture is required.");
+
+        // ---------- Upload Image ----------
 
         var uploadResult = await _imageService.UploadAsync(
             request.Picture.Content,
             request.Picture.FileName,
             cancellationToken);
 
-        // ---------- Create Entity ----------
+        try
+        {
+            // ---------- Create Entity ----------
 
-        var product = Product.Create(
-            request.ProductName,
-            request.ProductDescription,
-            uploadResult.Url,
-            uploadResult.PublicId,
-            request.Price,
-            request.BrandId,
-            request.TypeId);
+            var product = Product.Create(
+                request.ProductName,
+                request.ProductDescription,
+                uploadResult.Url,
+                uploadResult.PublicId,
+                request.Price,
+                request.BrandId,
+                request.TypeId);
 
-        // ---------- Persist ----------
+            // ---------- Persist ----------
 
-        productRepository.Create(product);
+            productRepository.Create(product);
 
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _unitOfWork.SaveChangesAsync(
+                cancellationToken);
 
-        // ---------- Result ----------
+            // ---------- Result ----------
 
-        return Result<Guid>.Success(product.Id);
+            return Result<Guid>.Success(product.Id);
+        }
+        catch
+        {
+            // Database persistence failed.
+            // Remove the newly uploaded Cloudinary image
+            // because no product was successfully persisted.
+
+            await _imageService.DeleteAsync(
+                uploadResult.PublicId,
+                cancellationToken);
+
+            throw;
+        }
     }
 }

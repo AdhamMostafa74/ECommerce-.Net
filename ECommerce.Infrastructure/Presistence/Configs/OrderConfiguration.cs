@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace ECommerce.Infrastructure.Presistence.Configs;
 
 public class OrderConfiguration : IEntityTypeConfiguration<Order>
-{
-    public void Configure(EntityTypeBuilder<Order> builder)
     {
+    public void Configure(EntityTypeBuilder<Order> builder)
+        {
         builder.ToTable("Orders");
 
         builder.HasKey(x => x.Id);
@@ -42,6 +42,10 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
                 .HasMaxLength(100)
                 .IsRequired();
 
+            address.Property(x => x.PhoneNumber)
+                .HasMaxLength(30)
+                .IsRequired();
+
             address.Property(x => x.Street)
                 .HasMaxLength(250)
                 .IsRequired();
@@ -62,12 +66,10 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
                 .HasMaxLength(100)
                 .IsRequired();
         });
-        builder.Property(x => x.TotalQuantity)
-    .IsRequired();
 
         builder.HasMany(x => x.Items)
             .WithOne()
             .HasForeignKey(x => x.OrderId)
             .OnDelete(DeleteBehavior.Cascade);
+        }
     }
-}

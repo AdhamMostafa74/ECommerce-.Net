@@ -7,6 +7,8 @@ public class Customer : BaseEntity
     public string FirstName { get; private set; } = string.Empty;
     public string LastName { get; private set; } = string.Empty;
     public string PhoneNumber { get; private set; } = string.Empty;
+    public DateOnly DateOfBirth { get; private set; }
+    public string Gender { get; private set; } = string.Empty;
 
     private Customer() { }
 
@@ -14,24 +16,33 @@ public class Customer : BaseEntity
         Guid applicationUserId,
         string firstName,
         string lastName,
-        string phoneNumber)
+        string phoneNumber,
+        DateOnly dateOfBirth,
+        string gender)
     {
         ApplicationUserId = applicationUserId;
         FirstName = firstName.Trim();
         LastName = lastName.Trim();
         PhoneNumber = phoneNumber.Trim();
+        DateOfBirth = dateOfBirth;
+        Gender = gender.Trim();
     }
 
     public static Customer Create(
         Guid applicationUserId,
         string firstName,
         string lastName,
-        string phoneNumber)
+        string phoneNumber,
+        DateOnly dateOfBirth,
+        string gender)
     {
         return new Customer(
             applicationUserId,
             firstName,
             lastName,
-            phoneNumber);
+            phoneNumber,
+            dateOfBirth,
+            gender);
     }
 }
+

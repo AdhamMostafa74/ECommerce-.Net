@@ -1,5 +1,4 @@
 ﻿using ECommerce.Application.Brands.Errors;
-using ECommerce.Application.Common.Cloudinary;
 using ECommerce.Application.Products.Errors;
 using ECommerce.Application.Types.Errors;
 using ECommerce.Domain.Common.Results;
@@ -13,12 +12,10 @@ using MediatR;
 namespace ECommerce.Application.Products.Commands.UpdateProduct;
 
 public sealed class UpdateProductHandler(
-    IUnitOfWork unitOfWork,
-    IImageService imageService)
+    IUnitOfWork unitOfWork)
     : IRequestHandler<UpdateProductCommand, Result<bool>>
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
-    private readonly IImageService _imageService = imageService;
 
     public async Task<Result<bool>> Handle(
         UpdateProductCommand request,

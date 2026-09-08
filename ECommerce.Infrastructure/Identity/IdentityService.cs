@@ -1,4 +1,5 @@
-﻿using ECommerce.Application.Authentication.Errors;
+﻿
+using ECommerce.Application.Authentication.Errors;
 using ECommerce.Application.Common.Identity;
 using ECommerce.Domain.Common;
 using Microsoft.AspNetCore.Identity;
@@ -58,13 +59,18 @@ public sealed class IdentityService(
             UserName = userName
         };
 
-        var result = await _userManager.CreateAsync(user, password);
+        var result = await _userManager.CreateAsync(
+            user,
+            password);
 
         if (!result.Succeeded)
         {
             var error = MapIdentityError(result.Errors);
 
-            return (false, Guid.Empty, error);
+            return (
+                false,
+                Guid.Empty,
+                error);
         }
 
         var roleResult = await _userManager.AddToRoleAsync(
@@ -81,7 +87,25 @@ public sealed class IdentityService(
                 AuthenticationErrors.RegistrationFailed);
         }
 
-        return (true, user.Id, null);
+        return (
+            true,
+            user.Id,
+            null);
+    }
+
+    public async Task<bool> DeleteUserAsync(
+        Guid userId,
+        CancellationToken cancellationToken = default)
+    {
+        var user = await _userManager.FindByIdAsync(
+            userId.ToString());
+
+        if (user is null)
+            return true;
+
+        var result = await _userManager.DeleteAsync(user);
+
+        return result.Succeeded;
     }
 
     private static Error MapIdentityError(

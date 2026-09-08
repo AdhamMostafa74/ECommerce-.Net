@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿
+using FluentValidation;
 
 namespace ECommerce.Application.Authentication.Commands.Register;
 
@@ -21,5 +22,25 @@ public sealed class RegisterValidator
             .NotEmpty()
             .MinimumLength(8)
             .MaximumLength(100);
+
+        RuleFor(x => x.FirstName)
+            .NotEmpty()
+            .MaximumLength(100);
+
+        RuleFor(x => x.LastName)
+            .NotEmpty()
+            .MaximumLength(100);
+
+        RuleFor(x => x.PhoneNumber)
+            .NotEmpty()
+            .MaximumLength(30);
+
+        RuleFor(x => x.DateOfBirth)
+            .LessThan(DateOnly.FromDateTime(DateTime.UtcNow));
+
+        RuleFor(x => x.Gender)
+            .NotEmpty()
+            .MaximumLength(30);
     }
 }
+

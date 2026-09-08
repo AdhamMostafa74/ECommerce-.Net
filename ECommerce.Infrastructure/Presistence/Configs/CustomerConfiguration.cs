@@ -1,4 +1,5 @@
-﻿using ECommerce.Domain.Entities;
+﻿
+using ECommerce.Domain.Entities;
 using ECommerce.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -25,6 +26,14 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
             .HasMaxLength(30)
             .IsRequired();
 
+        builder.Property(x => x.DateOfBirth)
+            .HasColumnType("date")
+            .IsRequired();
+
+        builder.Property(x => x.Gender)
+            .HasMaxLength(30)
+            .IsRequired();
+
         builder.HasIndex(x => x.ApplicationUserId)
             .IsUnique();
 
@@ -32,8 +41,8 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
             .HasDefaultValue(false);
 
         builder.HasOne<ApplicationUser>()
-    .WithOne()
-    .HasForeignKey<Customer>(x => x.ApplicationUserId)
-    .OnDelete(DeleteBehavior.Cascade);
+            .WithOne()
+            .HasForeignKey<Customer>(x => x.ApplicationUserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

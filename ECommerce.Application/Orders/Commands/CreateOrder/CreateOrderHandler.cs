@@ -12,25 +12,25 @@ using MediatR;
 
 namespace ECommerce.Application.Orders.Commands.CreateOrder;
 
-public sealed class CreateOrderCommandHandler(
+public sealed class CreateOrderHandler(
     IUnitOfWork unitOfWork,
     IBasketRepository basketRepository,
     ICurrentUser currentUser)
     : IRequestHandler<CreateOrderCommand, Result<Guid>>
-{
+    {
     public async Task<Result<Guid>> Handle(
         CreateOrderCommand request,
         CancellationToken ct)
-    {
+        {
         var basket = await basketRepository.GetAsync(
             currentUser.UserId,
             ct);
 
         if (basket is null || basket.Items.Count == 0)
-        {
+            {
             return Result<Guid>.Failure(
                 OrderErrors.EmptyBasket);
-        }
+            }
 
         var productIds = basket.Items
             .Select(x => x.ProductId)
@@ -38,10 +38,10 @@ public sealed class CreateOrderCommandHandler(
             .ToArray();
 
         if (productIds.Any(id => id == Guid.Empty))
-        {
+            {
             return Result<Guid>.Failure(
                 OrderErrors.InvalidBasket);
-        }
+            }
 
         var productRepository =
             unitOfWork.Repository<Product>();
@@ -51,23 +51,23 @@ public sealed class CreateOrderCommandHandler(
             ct);
 
         if (products.Count != productIds.Length)
-        {
+            {
             return Result<Guid>.Failure(
                 ProductErrors.NotFound);
-        }
+            }
 
         var productsById = products.ToDictionary(
             product => product.Id);
 
         foreach (var basketItem in basket.Items)
-        {
+            {
             if (basketItem.Quantity <= 0 ||
                 !productsById.ContainsKey(basketItem.ProductId))
-            {
+                {
                 return Result<Guid>.Failure(
                     OrderErrors.InvalidBasket);
+                }
             }
-        }
 
         var customerRepository =
             unitOfWork.Repository<Customer>();
@@ -77,26 +77,16 @@ public sealed class CreateOrderCommandHandler(
                 currentUser.UserId),
             ct);
 
-        if (customer is not null && customer.IsDeleted)
-        {
+        if (customer is null || customer.IsDeleted)
+            {
             return Result<Guid>.Failure(
                 OrderErrors.CustomerUnavailable);
-        }
-
-        if (customer is null)
-        {
-            customer = Customer.Create(
-                currentUser.UserId,
-                request.FirstName,
-                request.LastName,
-                request.PhoneNumber);
-
-            customerRepository.Create(customer);
-        }
+            }
 
         var shippingAddress = new Address(
-            request.FirstName,
-            request.LastName,
+            customer.FirstName,
+            customer.LastName,
+            customer.PhoneNumber,
             request.Street,
             request.City,
             request.State,
@@ -108,7 +98,7 @@ public sealed class CreateOrderCommandHandler(
             shippingAddress);
 
         foreach (var basketItem in basket.Items)
-        {
+            {
             var product =
                 productsById[basketItem.ProductId];
 
@@ -118,7 +108,7 @@ public sealed class CreateOrderCommandHandler(
                 product.PictureUrl,
                 product.Price,
                 basketItem.Quantity);
-        }
+            }
 
         var orderRepository =
             unitOfWork.Repository<Order>();
@@ -132,5 +122,5 @@ public sealed class CreateOrderCommandHandler(
             ct);
 
         return Result<Guid>.Success(order.Id);
+        }
     }
-}
