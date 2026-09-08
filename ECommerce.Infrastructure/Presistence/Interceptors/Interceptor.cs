@@ -37,23 +37,24 @@ public class Interceptor(ICurrentUser currentUser) : SaveChangesInterceptor
         var entries = context.ChangeTracker
             .Entries<BaseEntity>();
 
+        var actor = currentUser.IsAuthenticated
+            ? currentUser.UserId.ToString()
+            : null;
+
         foreach (var entry in entries)
         {
             switch (entry.State)
             {
                 case EntityState.Added:
-                    entry.Entity.MarkCreated(
-                        currentUser.UserId.ToString());
+                    entry.Entity.MarkCreated(actor);
                     break;
 
                 case EntityState.Modified:
-                    entry.Entity.MarkUpdated(
-                        currentUser.UserId.ToString());
+                    entry.Entity.MarkUpdated(actor);
                     break;
 
                 case EntityState.Deleted:
-                    entry.Entity.MarkAsDeleted(
-                        currentUser.UserId.ToString());
+                    entry.Entity.MarkAsDeleted(actor);
                     break;
             }
         }

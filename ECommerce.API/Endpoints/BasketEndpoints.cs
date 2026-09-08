@@ -17,7 +17,8 @@ public static class BasketEndpoints
     {
         var group = endpoints
             .MapGroup("/api/v1/basket")
-            .WithTags("BasketEntity");
+            .WithTags("BasketEntity")
+            .RequireAuthorization();
 
         // Add a product to the current user's basket
 
@@ -61,7 +62,6 @@ public static class BasketEndpoints
 
             return result.ToApiResult(context);
         })
-         .RequireAuthorization()
         .WithName("GetBasket")
         .WithSummary("Get the current user's basket")
         .Produces<ApiResponse<GetBasketResponse>>(

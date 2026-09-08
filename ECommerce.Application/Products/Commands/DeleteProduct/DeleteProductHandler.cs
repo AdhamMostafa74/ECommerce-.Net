@@ -1,4 +1,5 @@
-﻿using ECommerce.Application.Products.Errors;
+﻿using ECommerce.Application.Common.Identity;
+using ECommerce.Application.Products.Errors;
 using ECommerce.Domain.Common.Results;
 using ECommerce.Domain.Common.Specifications.ProductsSpecifications;
 using ECommerce.Domain.Entities;
@@ -7,10 +8,13 @@ using MediatR;
 
 namespace ECommerce.Application.Products.Commands.DeleteProduct;
 
-public sealed class DeleteProductHandler(IUnitOfWork unitOfWork)
+public sealed class DeleteProductHandler(
+    IUnitOfWork unitOfWork,
+    ICurrentUser currentUser)
     : IRequestHandler<DeleteProductCommand, Result<Unit>>
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly ICurrentUser _currentUser = currentUser;
 
     public async Task<Result<Unit>> Handle(
         DeleteProductCommand request,
@@ -26,7 +30,8 @@ public sealed class DeleteProductHandler(IUnitOfWork unitOfWork)
         {
             return Result<Unit>.Failure(ProductErrors.NotFound);
         }
-        product.DeleteProduct();
+
+        product.DeleteProduct(_currentUser.UserId.ToString());
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

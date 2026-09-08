@@ -1,4 +1,5 @@
 ﻿using ECommerce.Application.Brands.Errors;
+using ECommerce.Application.Common.Identity;
 using ECommerce.Domain.Common.Results;
 using ECommerce.Domain.Common.Specifications.BrandsSpecifications;
 using ECommerce.Domain.Entities;
@@ -8,7 +9,8 @@ using MediatR;
 namespace ECommerce.Application.Brands.Commands.DeleteBrand;
 
 public sealed class DeleteBrandHandler(
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    ICurrentUser currentUser)
     : IRequestHandler<DeleteBrandCommand, Result<Unit>>
 {
     public async Task<Result<Unit>> Handle(
@@ -27,7 +29,7 @@ public sealed class DeleteBrandHandler(
                 BrandErrors.NotFound);
         }
 
-        brand.DeleteBrand();
+        brand.DeleteBrand(currentUser.UserId.ToString());
 
         await unitOfWork.SaveChangesAsync(ct);
 

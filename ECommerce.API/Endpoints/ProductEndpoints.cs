@@ -77,7 +77,6 @@ public static class ProductEndpoints
         .Produces<ApiResponse<PaginatedResult<GetAllProductResponse>>>(
             StatusCodes.Status500InternalServerError);
 
-
         // ===========================
         // Get All Products Including Deleted
         // ===========================
@@ -125,7 +124,8 @@ public static class ProductEndpoints
         })
         .WithName("GetProductById")
         .WithSummary("Retrieve a product by ID")
-        .WithDescription("Returns the product matching the specified identifier.")
+        .WithDescription(
+            "Returns the product matching the specified identifier.")
         .Produces<ApiResponse<GetByIdProductResponse>>(
             StatusCodes.Status200OK)
         .Produces<ApiResponse<GetByIdProductResponse>>(
@@ -138,11 +138,12 @@ public static class ProductEndpoints
         // ===========================
         // Create Product
         // ===========================
+
         group.MapPost("/", async (
-     [FromForm] CreateProductRequest request,
-     IMediator mediator,
-     HttpContext context,
-     CancellationToken ct) =>
+            [FromForm] CreateProductRequest request,
+            IMediator mediator,
+            HttpContext context,
+            CancellationToken ct) =>
         {
             FileUpload? fileUpload = null;
 
@@ -166,8 +167,8 @@ public static class ProductEndpoints
 
             return result.ToApiResult(context);
         })
-            .RequireAuthorization(policy =>
-    policy.RequireRole("Admin"))
+        .RequireAuthorization(policy =>
+            policy.RequireRole("Admin"))
         .DisableAntiforgery()
         .WithName("CreateProduct")
         .WithSummary("Create a product")
@@ -177,10 +178,10 @@ public static class ProductEndpoints
         .Produces<ApiResponse<Guid>>(StatusCodes.Status404NotFound)
         .Produces<ApiResponse<Guid>>(StatusCodes.Status409Conflict)
         .Produces<ApiResponse<Guid>>(StatusCodes.Status500InternalServerError);
+
         // ===========================
         // Update Product
         // ===========================
-
 
         group.MapPatch("/{id:guid}", async (
             Guid id,
@@ -201,28 +202,28 @@ public static class ProductEndpoints
 
             return result.ToApiResult(context);
         })
+        .RequireAuthorization(policy =>
+            policy.RequireRole("Admin"))
         .WithName("UpdateProduct")
         .WithSummary("Update a product")
-        .WithDescription("Updates one or more fields of an existing product.")
+        .WithDescription(
+            "Updates one or more fields of an existing product.")
         .Produces<ApiResponse<object?>>(StatusCodes.Status200OK)
         .Produces<ApiResponse<object?>>(StatusCodes.Status400BadRequest)
         .Produces<ApiResponse<object?>>(StatusCodes.Status404NotFound)
         .Produces<ApiResponse<object?>>(StatusCodes.Status409Conflict)
         .Produces<ApiResponse<object?>>(StatusCodes.Status500InternalServerError);
 
-
         // ===========================
         // Update Product Picture
         // ===========================
 
-
-
         group.MapPut("/{id:guid}/picture", async (
-    Guid id,
-    [FromForm] UpdateProductPictureRequest request,
-    IMediator mediator,
-    HttpContext context,
-    CancellationToken ct) =>
+            Guid id,
+            [FromForm] UpdateProductPictureRequest request,
+            IMediator mediator,
+            HttpContext context,
+            CancellationToken ct) =>
         {
             if (request.Picture is null)
             {
@@ -245,14 +246,18 @@ public static class ProductEndpoints
 
             return result.ToApiResult(context);
         })
-.DisableAntiforgery()
-.WithName("UpdateProductPicture")
-.WithSummary("Update a product picture")
-.WithDescription("Replaces the existing product picture.")
-.Produces<ApiResponse<object?>>(StatusCodes.Status200OK)
-.Produces<ApiResponse<object?>>(StatusCodes.Status400BadRequest)
-.Produces<ApiResponse<object?>>(StatusCodes.Status404NotFound)
-.Produces<ApiResponse<object?>>(StatusCodes.Status500InternalServerError);
+        .RequireAuthorization(policy =>
+            policy.RequireRole("Admin"))
+        .DisableAntiforgery()
+        .WithName("UpdateProductPicture")
+        .WithSummary("Update a product picture")
+        .WithDescription(
+            "Replaces the existing product picture.")
+        .Produces<ApiResponse<object?>>(StatusCodes.Status200OK)
+        .Produces<ApiResponse<object?>>(StatusCodes.Status400BadRequest)
+        .Produces<ApiResponse<object?>>(StatusCodes.Status404NotFound)
+        .Produces<ApiResponse<object?>>(StatusCodes.Status500InternalServerError);
+
         // ===========================
         // Delete Product
         // ===========================
@@ -269,9 +274,12 @@ public static class ProductEndpoints
 
             return result.ToApiResult(context);
         })
+        .RequireAuthorization(policy =>
+            policy.RequireRole("Admin"))
         .WithName("DeleteProduct")
         .WithSummary("Delete a product")
-        .WithDescription("Deletes the specified product.")
+        .WithDescription(
+            "Deletes the specified product.")
         .Produces<ApiResponse<object?>>(StatusCodes.Status200OK)
         .Produces<ApiResponse<object?>>(StatusCodes.Status404NotFound)
         .Produces<ApiResponse<object?>>(StatusCodes.Status500InternalServerError);

@@ -23,7 +23,6 @@ public static class BrandEndpoints
             .MapGroup("/api/v1/brands")
             .WithTags("Brands");
 
-
         // ===========================
         // Get Brand By Id
         // ===========================
@@ -42,7 +41,8 @@ public static class BrandEndpoints
         })
         .WithName("GetBrandById")
         .WithSummary("Retrieve a brand by ID")
-        .WithDescription("Returns the brand matching the specified identifier.")
+        .WithDescription(
+            "Returns the brand matching the specified identifier.")
         .Produces<ApiResponse<GetByIdBrandResponse>>(
             StatusCodes.Status200OK)
         .Produces<ApiResponse<GetByIdBrandResponse>>(
@@ -51,7 +51,6 @@ public static class BrandEndpoints
             StatusCodes.Status404NotFound)
         .Produces<ApiResponse<GetByIdBrandResponse>>(
             StatusCodes.Status500InternalServerError);
-
 
         // ===========================
         // Create Brand
@@ -69,6 +68,8 @@ public static class BrandEndpoints
 
             return result.ToApiResult(context);
         })
+        .RequireAuthorization(policy =>
+            policy.RequireRole("Admin"))
         .WithName("CreateBrand")
         .WithSummary("Create a new brand")
         .WithDescription("Creates a new product brand.")
@@ -81,11 +82,9 @@ public static class BrandEndpoints
         .Produces<ApiResponse<BrandResponse>>(
             StatusCodes.Status500InternalServerError);
 
-
         // ===========================
         // Update Brand
         // ===========================
-
 
         group.MapPut("/{id:guid}", async (
             Guid id,
@@ -102,9 +101,12 @@ public static class BrandEndpoints
 
             return result.ToApiResult(context);
         })
+        .RequireAuthorization(policy =>
+            policy.RequireRole("Admin"))
         .WithName("UpdateBrand")
         .WithSummary("Update a brand")
-        .WithDescription("Updates the name of an existing product brand.")
+        .WithDescription(
+            "Updates the name of an existing product brand.")
         .Produces<ApiResponse<BrandResponse>>(
             StatusCodes.Status200OK)
         .Produces<ApiResponse<BrandResponse>>(
@@ -141,7 +143,6 @@ public static class BrandEndpoints
         .Produces<ApiResponse<PaginatedResult<GetAllBrandsResponse>>>(
             StatusCodes.Status500InternalServerError);
 
-
         // ===========================
         // Get Deleted Brands
         // ===========================
@@ -170,7 +171,6 @@ public static class BrandEndpoints
             StatusCodes.Status400BadRequest)
         .Produces<ApiResponse<PaginatedResult<GetAllBrandsResponse>>>(
             StatusCodes.Status500InternalServerError);
-
 
         // ===========================
         // Get All Brands Including Deleted
@@ -201,8 +201,6 @@ public static class BrandEndpoints
         .Produces<ApiResponse<PaginatedResult<GetAllBrandsResponse>>>(
             StatusCodes.Status500InternalServerError);
 
-
-
         // ===========================
         // Delete Brand
         // ===========================
@@ -231,6 +229,7 @@ public static class BrandEndpoints
             StatusCodes.Status404NotFound)
         .Produces<ApiResponse<Unit>>(
             StatusCodes.Status500InternalServerError);
+
         return endpoints;
     }
 }

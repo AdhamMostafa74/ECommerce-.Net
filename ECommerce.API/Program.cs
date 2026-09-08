@@ -13,15 +13,18 @@ builder.Services.AddPresentation();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddSwaggerGen(options =>
 {
-    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.OpenApiSecurityScheme
-    {
-        Type = Microsoft.OpenApi.SecuritySchemeType.Http,
-        Scheme = "bearer",
-        BearerFormat = "JWT",
-        Description = "JWT Authorization header using the Bearer scheme."
-    });
+    options.AddSecurityDefinition(
+        "Bearer",
+        new Microsoft.OpenApi.OpenApiSecurityScheme
+        {
+            Type = Microsoft.OpenApi.SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            Description = "JWT Authorization header using the Bearer scheme."
+        });
 
     options.AddSecurityRequirement(document =>
         new Microsoft.OpenApi.OpenApiSecurityRequirement
@@ -30,29 +33,41 @@ builder.Services.AddSwaggerGen(options =>
                 "Bearer",
                 document)] = []
         });
-}); builder.Host.UseSerilog((context, configuration) =>
+});
+
+builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration));
 
 var app = builder.Build();
+
 app.UseSerilogRequestLogging();
 app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())
 {
-    var scope = app.Services.CreateAsyncScope();
-    var dbSeed = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
-    var dbContext = scope.ServiceProvider.GetRequiredService<ECommerceDbContext>();
-    await dbSeed.SeedAll();
+    await using var scope = app.Services.CreateAsyncScope();
+
+    var dbSeed =
+        scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+
+    var dbContext =
+        scope.ServiceProvider.GetRequiredService<ECommerceDbContext>();
+
     await dbContext.Database.MigrateAsync();
+    await dbSeed.SeedAll();
+
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapProductEndpoints();
 app.MapTypeEndpoints();
 app.MapBrandEndpoints();
 app.MapBasketEndpoints();
 app.MapOrderEndpoints();
 app.MapAuthenticationEndpoints();
+
 app.Run();

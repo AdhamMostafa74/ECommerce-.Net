@@ -1,4 +1,5 @@
-﻿using ECommerce.Application.Types.Errors;
+﻿using ECommerce.Application.Common.Identity;
+using ECommerce.Application.Types.Errors;
 using ECommerce.Domain.Common.Results;
 using ECommerce.Domain.Common.Specifications.TypesSpecifications;
 using ECommerce.Domain.Entities;
@@ -8,7 +9,8 @@ using MediatR;
 namespace ECommerce.Application.Types.Commands.DeleteType;
 
 public sealed class DeleteTypeHandler(
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    ICurrentUser currentUser)
     : IRequestHandler<
         DeleteTypeCommand,
         Result<Unit>>
@@ -30,7 +32,7 @@ public sealed class DeleteTypeHandler(
                 TypeErrors.NotFound);
         }
 
-        type.DeleteType();
+        type.DeleteType(currentUser.UserId.ToString());
 
         await unitOfWork.SaveChangesAsync(ct);
 

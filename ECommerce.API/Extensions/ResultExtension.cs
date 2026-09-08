@@ -36,6 +36,11 @@ public static class ResultExtensions
             ErrorType.Conflict =>
                 Results.Conflict(errorResponse),
 
+            ErrorType.Authentication =>
+                Results.Json(
+                    errorResponse,
+                    statusCode: StatusCodes.Status401Unauthorized),
+
             ErrorType.Unauthorized =>
                 Results.Json(
                     errorResponse,
@@ -88,6 +93,11 @@ public static class ResultExtensions
             ErrorType.Conflict =>
                 Results.Conflict(errorResponse),
 
+            ErrorType.Authentication =>
+                Results.Json(
+                    errorResponse,
+                    statusCode: StatusCodes.Status401Unauthorized),
+
             ErrorType.Unauthorized =>
                 Results.Json(
                     errorResponse,
@@ -104,6 +114,4 @@ public static class ResultExtensions
                     statusCode: StatusCodes.Status500InternalServerError)
         };
     }
-
-
 }

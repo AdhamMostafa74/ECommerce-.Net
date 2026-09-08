@@ -1,6 +1,5 @@
 ﻿using ECommerce.Application.Common.Identity;
 using Microsoft.AspNetCore.Http;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace ECommerce.Infrastructure.Identity;
@@ -24,5 +23,14 @@ public sealed class CurrentUser(
             return id;
         }
     }
-}
 
+    public bool IsAuthenticated
+    {
+        get
+        {
+            var user = httpContextAccessor.HttpContext?.User;
+
+            return user?.Identity?.IsAuthenticated == true;
+        }
+    }
+}
