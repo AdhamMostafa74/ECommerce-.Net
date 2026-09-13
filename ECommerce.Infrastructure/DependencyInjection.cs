@@ -2,6 +2,7 @@
 using ECommerce.Application.Brands;
 using ECommerce.Application.Common.Cloudinary;
 using ECommerce.Application.Common.Identity;
+using ECommerce.Application.Orders;
 using ECommerce.Application.Products;
 using ECommerce.Application.Types;
 using ECommerce.Domain.Repositories;
@@ -54,6 +55,7 @@ public static class DependencyInjection
         services.AddScoped<IProductQueryService, ProductQueryService>();
         services.AddScoped<IBrandQueryService, BrandQueryService>();
         services.AddScoped<ITypeQueryService, TypeQueryService>();
+        services.AddScoped<IOrderQueryService, OrderQueryService>();
 
         services.AddScoped<DatabaseSeeder>();
         services.AddScoped<Interceptor>();
