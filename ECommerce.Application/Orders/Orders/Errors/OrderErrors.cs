@@ -19,4 +19,10 @@ public static class OrderErrors
         "Order.InvalidBasket",
         "The basket contains invalid item data.",
         ErrorType.Failure);
+
+    public static readonly Error NotFound =
+    new(
+        "Order.NotFound",
+        "Order was not found.",
+        ErrorType.NotFound);
 }
