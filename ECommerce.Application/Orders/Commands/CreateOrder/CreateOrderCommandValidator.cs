@@ -4,9 +4,9 @@ namespace ECommerce.Application.Orders.Commands.CreateOrder;
 
 public sealed class CreateOrderCommandValidator
     : AbstractValidator<CreateOrderCommand>
-    {
+{
     public CreateOrderCommandValidator()
-        {
+    {
         RuleFor(x => x.Street)
             .NotEmpty()
             .MaximumLength(250);
@@ -26,5 +26,8 @@ public sealed class CreateOrderCommandValidator
         RuleFor(x => x.Country)
             .NotEmpty()
             .MaximumLength(100);
-        }
+        RuleFor(x => x.PaymentMethod)
+    .IsInEnum();
     }
+
+}

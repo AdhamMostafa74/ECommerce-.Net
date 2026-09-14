@@ -94,8 +94,9 @@ public sealed class CreateOrderHandler(
             request.Country);
 
         var order = Order.Create(
-            customer.Id,
-            shippingAddress);
+     customer.Id,
+     shippingAddress,
+     request.PaymentMethod);
 
         foreach (var basketItem in basket.Items)
             {

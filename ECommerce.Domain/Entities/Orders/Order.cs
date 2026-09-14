@@ -10,6 +10,10 @@ public class Order : BaseEntity
 
     public OrderStatus Status { get; private set; }
 
+    public PaymentStatus PaymentStatus { get; private set; }
+
+    public PaymentMethod PaymentMethod { get; private set; }
+
     public decimal TotalPrice { get; private set; }
 
     public int TotalQuantity { get; private set; }
@@ -25,7 +29,8 @@ public class Order : BaseEntity
 
     private Order(
         Guid customerId,
-        Address shippingAddress)
+        Address shippingAddress,
+        PaymentMethod paymentMethod)
     {
         if (customerId == Guid.Empty)
             throw new ArgumentException(
@@ -35,15 +40,19 @@ public class Order : BaseEntity
         CustomerId = customerId;
         ShippingAddress = shippingAddress;
         Status = OrderStatus.Pending;
+        PaymentStatus = PaymentStatus.Pending;
+        PaymentMethod = paymentMethod;
     }
 
     public static Order Create(
         Guid customerId,
-        Address shippingAddress)
+        Address shippingAddress,
+        PaymentMethod paymentMethod)
     {
         return new Order(
             customerId,
-            shippingAddress);
+            shippingAddress,
+            paymentMethod);
     }
 
     public void AddItem(
@@ -91,6 +100,88 @@ public class Order : BaseEntity
         RecalculateTotals();
     }
 
+    public void MarkAsProcessing()
+    {
+        if (Status != OrderStatus.Pending)
+            throw new InvalidOperationException(
+                "Only pending orders can be processed.");
+
+        if (PaymentMethod == PaymentMethod.Online &&
+            PaymentStatus != PaymentStatus.Paid)
+        {
+            throw new InvalidOperationException(
+                "An online order must be paid before processing.");
+        }
+
+        Status = OrderStatus.Processing;
+    }
+
+    public void MarkAsShipped()
+    {
+        if (Status != OrderStatus.Processing)
+            throw new InvalidOperationException(
+                "Only processing orders can be shipped.");
+
+        Status = OrderStatus.Shipped;
+    }
+
+    public void MarkAsDelivered()
+    {
+        if (Status != OrderStatus.Shipped)
+            throw new InvalidOperationException(
+                "Only shipped orders can be delivered.");
+
+        if (PaymentMethod == PaymentMethod.CashOnDelivery)
+            PaymentStatus = PaymentStatus.Paid;
+
+        Status = OrderStatus.Delivered;
+    }
+
+    public void Cancel()
+    {
+        if (Status != OrderStatus.Pending &&
+            Status != OrderStatus.Processing)
+        {
+            throw new InvalidOperationException(
+                "Only pending or processing orders can be cancelled.");
+        }
+
+        Status = OrderStatus.Cancelled;
+    }
+
+    public void MarkPaymentAsPaid()
+    {
+        if (PaymentStatus == PaymentStatus.Paid)
+            return;
+
+        if (PaymentStatus == PaymentStatus.Refunded)
+            throw new InvalidOperationException(
+                "A refunded payment cannot be marked as paid.");
+
+        PaymentStatus = PaymentStatus.Paid;
+    }
+
+    public void MarkPaymentAsFailed()
+    {
+        if (PaymentStatus == PaymentStatus.Paid)
+            throw new InvalidOperationException(
+                "A paid payment cannot be marked as failed.");
+
+        if (PaymentStatus == PaymentStatus.Refunded)
+            throw new InvalidOperationException(
+                "A refunded payment cannot be marked as failed.");
+
+        PaymentStatus = PaymentStatus.Failed;
+    }
+
+    public void MarkPaymentAsRefunded()
+    {
+        if (PaymentStatus != PaymentStatus.Paid)
+            throw new InvalidOperationException(
+                "Only paid payments can be refunded.");
+
+        PaymentStatus = PaymentStatus.Refunded;
+    }
     private void RecalculateTotals()
     {
         TotalPrice = _items.Sum(x => x.TotalPrice);

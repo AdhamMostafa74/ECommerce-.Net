@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace ECommerce.Infrastructure.Presistence.Configs;
 
 public class OrderConfiguration : IEntityTypeConfiguration<Order>
-    {
+{
     public void Configure(EntityTypeBuilder<Order> builder)
-        {
+    {
         builder.ToTable("Orders");
 
         builder.HasKey(x => x.Id);
@@ -17,6 +17,13 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .IsRequired();
 
         builder.Property(x => x.Status)
+            .HasConversion<int>()
+            .IsRequired();
+        builder.Property(x => x.PaymentStatus)
+            .HasConversion<int>()
+            .IsRequired();
+
+        builder.Property(x => x.PaymentMethod)
             .HasConversion<int>()
             .IsRequired();
 
@@ -31,6 +38,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .WithMany()
             .HasForeignKey(x => x.CustomerId)
             .OnDelete(DeleteBehavior.Restrict);
+
 
         builder.OwnsOne(x => x.ShippingAddress, address =>
         {
@@ -71,5 +79,5 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .WithOne()
             .HasForeignKey(x => x.OrderId)
             .OnDelete(DeleteBehavior.Cascade);
-        }
     }
+}

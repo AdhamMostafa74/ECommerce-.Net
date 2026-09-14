@@ -4,6 +4,7 @@ using ECommerce.Application.Common.Pagination;
 using ECommerce.Application.Orders.Commands.CreateOrder;
 using ECommerce.Application.Orders.Queries.GetMyOrders;
 using ECommerce.Application.Orders.Queries.GetOrderDetails;
+using ECommerce.Domain.Entities.Orders;
 using MediatR;
 
 namespace ECommerce.API.Endpoints;
@@ -55,11 +56,12 @@ public static class OrderEndpoints
             CancellationToken ct) =>
         {
             var command = new CreateOrderCommand(
-                request.Street,
-                request.City,
-                request.State,
-                request.PostalCode,
-                request.Country);
+      request.Street,
+      request.City,
+      request.State,
+      request.PostalCode,
+      request.Country,
+      request.PaymentMethod);
 
             var result = await sender.Send(
                 command,
@@ -117,4 +119,5 @@ public sealed record CreateOrderRequest(
     string City,
     string State,
     string PostalCode,
-    string Country);
+    string Country,
+    PaymentMethod PaymentMethod);
