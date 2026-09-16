@@ -1,8 +1,8 @@
 ﻿
 
 using ECommerce.Domain.Entities;
-using ECommerce.Infrastructure.Data.DbContexts;
 using ECommerce.Infrastructure.Presistence.DataSeeding.Data.Models;
+using ECommerce.Infrastructure.Presistence.DbContexts;
 
 namespace ECommerce.Infrastructure.Presistence.DataSeeding.Data;
 

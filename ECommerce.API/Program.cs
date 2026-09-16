@@ -2,8 +2,8 @@ using ECommerce.API;
 using ECommerce.API.Endpoints;
 using ECommerce.Application.Common;
 using ECommerce.Infrastructure;
-using ECommerce.Infrastructure.Data.DbContexts;
 using ECommerce.Infrastructure.Presistence.DataSeeding;
+using ECommerce.Infrastructure.Presistence.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 

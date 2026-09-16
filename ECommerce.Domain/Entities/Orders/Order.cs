@@ -23,6 +23,11 @@ public class Order : BaseEntity
     public IReadOnlyCollection<OrderItem> Items =>
         _items.AsReadOnly();
 
+    private readonly List<Payment> _payments = [];
+
+    public IReadOnlyCollection<Payment> Payments =>
+        _payments.AsReadOnly();
+
     private Order()
     {
     }
@@ -186,5 +191,16 @@ public class Order : BaseEntity
     {
         TotalPrice = _items.Sum(x => x.TotalPrice);
         TotalQuantity = _items.Sum(x => x.Quantity);
+    }
+
+    public void AddPayment(Payment payment)
+    {
+        ArgumentNullException.ThrowIfNull(payment);
+
+        if (payment.OrderId != Id)
+            throw new InvalidOperationException(
+                "Payment does not belong to this order.");
+
+        _payments.Add(payment);
     }
 }

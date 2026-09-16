@@ -1,5 +1,4 @@
-﻿
-using ECommerce.Infrastructure.Data.DbContexts;
+﻿using ECommerce.Infrastructure.Presistence.DbContexts;
 
 namespace ECommerce.Infrastructure.Presistence.DataSeeding;
 

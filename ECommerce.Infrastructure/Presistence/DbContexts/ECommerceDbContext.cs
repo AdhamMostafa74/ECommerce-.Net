@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace ECommerce.Infrastructure.Data.DbContexts;
+namespace ECommerce.Infrastructure.Presistence.DbContexts;
 
 public class ECommerceDbContext(
     DbContextOptions<ECommerceDbContext> options)
@@ -17,6 +17,7 @@ public class ECommerceDbContext(
     public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
+    public DbSet<Payment> Payments => Set<Payment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

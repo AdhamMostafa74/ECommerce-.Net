@@ -73,7 +73,7 @@ public sealed class Result<T>
     public override string ToString()
     {
         return IsSuccess
-            ? $"Success ({Value})"
+            ? "Success"
             : $"Failure: {string.Join(
                 ", ",
                 Errors.Select(e => $"({e.Code}): {e.Description}"))}";
