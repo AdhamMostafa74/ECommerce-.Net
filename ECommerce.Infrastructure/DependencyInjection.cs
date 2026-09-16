@@ -15,12 +15,14 @@ using ECommerce.Infrastructure.Presistence.Interceptors;
 using ECommerce.Infrastructure.Presistence.Queries;
 using ECommerce.Infrastructure.Presistence.Repositories;
 using ECommerce.Infrastructure.Presistence.Services.CloudinaryServices;
+using ECommerce.Infrastructure.Presistence.Services.Paymob;
 using ECommerce.Infrastructure.Services.Cloudinary;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
 using System.Text;
@@ -146,6 +148,18 @@ public static class DependencyInjection
                         ClockSkew = TimeSpan.Zero
                     };
             });
+
+
+        // Paymob 
+
+        services
+    .AddOptions<PaymobSettings>()
+    .BindConfiguration(PaymobSettings.SectionName)
+    .ValidateOnStart();
+
+        services.AddSingleton<
+            IValidateOptions<PaymobSettings>,
+            PaymobSettingsValidator>();
 
         // Current authenticated user
 
