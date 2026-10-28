@@ -1,5 +1,7 @@
-﻿namespace ECommerce.Application.Common.Payments;
+﻿
+namespace ECommerce.Application.Common.Payments;
 
 public sealed record PaymentInitiationResult(
     string PaymentIntentId,
-    string ClientSecret);
+    string ClientSecret,
+    string Currency);

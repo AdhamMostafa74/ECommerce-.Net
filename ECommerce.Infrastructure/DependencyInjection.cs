@@ -2,6 +2,7 @@
 using ECommerce.Application.Brands;
 using ECommerce.Application.Common.Cloudinary;
 using ECommerce.Application.Common.Identity;
+using ECommerce.Application.Common.Payments;
 using ECommerce.Application.Orders;
 using ECommerce.Application.Products;
 using ECommerce.Application.Types;
@@ -161,6 +162,19 @@ public static class DependencyInjection
             IValidateOptions<PaymobSettings>,
             PaymobSettingsValidator>();
 
+
+        services.AddHttpClient<IPaymentService, PaymobPaymentService>(
+    (serviceProvider, client) =>
+    {
+        var settings = serviceProvider
+            .GetRequiredService<IOptions<PaymobSettings>>()
+            .Value;
+
+        client.BaseAddress = new Uri(
+            settings.BaseUrl.TrimEnd('/') + "/");
+
+        client.Timeout = TimeSpan.FromSeconds(30);
+    });
         // Current authenticated user
 
         services.AddHttpContextAccessor();

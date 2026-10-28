@@ -1,4 +1,5 @@
-﻿using ECommerce.Domain.Common.Results;
+﻿
+using ECommerce.Domain.Common.Results;
 using ECommerce.Domain.Entities.Orders;
 using MediatR;
 
@@ -10,4 +11,5 @@ public sealed record CreateOrderCommand(
     string State,
     string PostalCode,
     string Country,
-    PaymentMethod PaymentMethod) : IRequest<Result<Guid>>;
+    PaymentMethod PaymentMethod)
+    : IRequest<Result<CreateOrderResponse>>;

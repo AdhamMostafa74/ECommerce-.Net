@@ -23,4 +23,8 @@ public interface IIdentityService
     Task<bool> DeleteUserAsync(
         Guid userId,
         CancellationToken cancellationToken = default);
+
+    Task<string?> GetEmailAsync(
+    Guid userId,
+    CancellationToken cancellationToken = default);
 }
