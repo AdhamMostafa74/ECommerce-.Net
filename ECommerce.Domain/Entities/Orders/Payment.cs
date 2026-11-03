@@ -7,6 +7,7 @@ public class Payment : BaseEntity
     public string Provider { get; private set; } = string.Empty;
 
     public string ProviderPaymentId { get; private set; } = string.Empty;
+    public string? ProviderTransactionId { get; private set; }
 
     public PaymentStatus Status { get; private set; }
 
@@ -83,6 +84,23 @@ public class Payment : BaseEntity
         Status = PaymentStatus.Paid;
     }
 
+
+    public void SetProviderTransactionId(string transactionId)
+    {
+        if (string.IsNullOrWhiteSpace(transactionId))
+            throw new ArgumentException(
+                "Provider transaction ID is required.",
+                nameof(transactionId));
+
+        if (ProviderTransactionId is not null &&
+            ProviderTransactionId != transactionId)
+        {
+            throw new InvalidOperationException(
+                "A different provider transaction ID is already recorded.");
+        }
+
+        ProviderTransactionId = transactionId.Trim();
+    }
     public void MarkAsFailed()
     {
         if (Status == PaymentStatus.Paid)

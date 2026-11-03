@@ -36,6 +36,8 @@ public sealed class PaymobSettingsValidator
             errors.Add(
                 "Paymob BaseUrl must be a valid HTTPS URL.");
         }
+        if (string.IsNullOrWhiteSpace(options.HmacSecret))
+            errors.Add("Paymob HmacSecret is required.");
 
         if (errors.Count > 0)
             return ValidateOptionsResult.Fail(errors);

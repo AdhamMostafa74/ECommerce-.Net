@@ -33,6 +33,8 @@ public sealed class PaymentConfiguration
             .HasMaxLength(3)
             .IsRequired();
 
+        builder.Property(payment => payment.ProviderTransactionId)
+    .HasMaxLength(100);
         builder.HasIndex(
                 payment => new
                 {
@@ -45,5 +47,9 @@ public sealed class PaymentConfiguration
             .WithMany(order => order.Payments)
             .HasForeignKey(payment => payment.OrderId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasIndex(payment => payment.ProviderTransactionId)
+    .IsUnique()
+    .HasFilter("[ProviderTransactionId] IS NOT NULL");
     }
 }

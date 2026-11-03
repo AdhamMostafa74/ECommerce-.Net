@@ -22,6 +22,9 @@ public sealed class PaymobSettings
     public string RedirectionUrl { get; init; } = string.Empty;
 
     [Required]
+    public string HmacSecret { get; init; } = string.Empty;
+
+    [Required]
     [MinLength(1)]
     public List<int> PaymentMethodIds { get; init; } = [];
 }
