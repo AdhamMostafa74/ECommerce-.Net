@@ -33,6 +33,10 @@ public sealed class PaymentConfiguration
             .HasMaxLength(3)
             .IsRequired();
 
+        builder.Property(payment => payment.ProviderOrderId)
+    .HasMaxLength(100)
+    .IsRequired();
+
         builder.Property(payment => payment.ProviderTransactionId)
     .HasMaxLength(100);
         builder.HasIndex(
@@ -51,5 +55,12 @@ public sealed class PaymentConfiguration
         builder.HasIndex(payment => payment.ProviderTransactionId)
     .IsUnique()
     .HasFilter("[ProviderTransactionId] IS NOT NULL");
+
+        builder.HasIndex(payment => new
+        {
+            payment.Provider,
+            payment.ProviderOrderId
+        })
+.IsUnique();
     }
 }

@@ -69,5 +69,6 @@ app.MapBrandEndpoints();
 app.MapBasketEndpoints();
 app.MapOrderEndpoints();
 app.MapAuthenticationEndpoints();
+app.MapPaymobEndpoints();
 
 app.Run();

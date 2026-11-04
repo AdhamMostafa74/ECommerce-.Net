@@ -142,11 +142,12 @@ public sealed class CreateOrderHandler(
                 ct);
 
             var payment = Payment.Create(
-                order.Id,
-                "Paymob",
-                paymentResult.PaymentIntentId,
-                order.TotalPrice,
-                paymentResult.Currency);
+    order.Id,
+    "Paymob",
+    paymentResult.PaymentIntentId,
+    paymentResult.ProviderOrderId,
+    order.TotalPrice,
+    paymentResult.Currency);
 
             order.AddPayment(payment);
 

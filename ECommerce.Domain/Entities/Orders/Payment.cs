@@ -11,6 +11,7 @@ public class Payment : BaseEntity
 
     public PaymentStatus Status { get; private set; }
 
+    public string ProviderOrderId { get; private set; } = string.Empty;
     public decimal Amount { get; private set; }
 
     public string Currency { get; private set; } = string.Empty;
@@ -23,6 +24,7 @@ public class Payment : BaseEntity
         Guid orderId,
         string provider,
         string providerPaymentId,
+        string providerOrderId,
         decimal amount,
         string currency)
     {
@@ -30,6 +32,11 @@ public class Payment : BaseEntity
             throw new ArgumentException(
                 "Order ID is required.",
                 nameof(orderId));
+
+        if (string.IsNullOrWhiteSpace(providerOrderId))
+            throw new ArgumentException(
+                "Provider order ID is required.",
+                nameof(providerOrderId));
 
         if (string.IsNullOrWhiteSpace(provider))
             throw new ArgumentException(
@@ -57,11 +64,13 @@ public class Payment : BaseEntity
         Amount = amount;
         Currency = currency.Trim();
         Status = PaymentStatus.Pending;
+        ProviderOrderId = providerOrderId.Trim();
     }
 
     public static Payment Create(
         Guid orderId,
         string provider,
+        string providerOrderId,
         string providerPaymentId,
         decimal amount,
         string currency)
@@ -69,6 +78,7 @@ public class Payment : BaseEntity
             orderId,
             provider,
             providerPaymentId,
+            providerOrderId,
             amount,
             currency);
 

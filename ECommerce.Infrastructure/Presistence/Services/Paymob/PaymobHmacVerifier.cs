@@ -7,110 +7,116 @@ namespace ECommerce.Infrastructure.Presistence.Services.Paymob;
 
 public static class PaymobHmacVerifier
 {
-    private static readonly string[][] HmacFieldPaths =
+    private static readonly string[] HmacFields =
     [
-        ["amount_cents"],
-        ["created_at"],
-        ["currency"],
-        ["error_occured"],
-        ["has_parent_transaction"],
-        ["id"],
-        ["integration_id"],
-        ["is_3d_secure"],
-        ["is_auth"],
-        ["is_capture"],
-        ["is_refunded"],
-        ["is_standalone_payment"],
-        ["is_voided"],
-        ["order", "id"],
-        ["owner"],
-        ["pending"],
-        ["source_data", "pan"],
-        ["source_data", "sub_type"],
-        ["source_data", "type"],
-        ["success"]
+        "amount_cents",
+        "created_at",
+        "currency",
+        "error_occured",
+        "has_parent_transaction",
+        "id",
+        "integration_id",
+        "is_3d_secure",
+        "is_auth",
+        "is_capture",
+        "is_refunded",
+        "is_standalone_payment",
+        "is_voided",
+        "order.id",
+        "owner",
+        "pending",
+        "source_data.pan",
+        "source_data.sub_type",
+        "source_data.type",
+        "success"
     ];
 
     public static bool VerifyTransaction(
-        JsonElement callbackBody,
-        string? receivedHmac,
+        JsonElement root,
+        string suppliedHmac,
         string secret)
     {
-        if (string.IsNullOrWhiteSpace(secret) ||
-            string.IsNullOrWhiteSpace(receivedHmac) ||
-            receivedHmac.Length != 128)
-        {
-            return false;
-        }
-
-        if (!callbackBody.TryGetProperty("obj", out var transaction) ||
-            transaction.ValueKind != JsonValueKind.Object)
+        if (string.IsNullOrWhiteSpace(suppliedHmac) ||
+            string.IsNullOrWhiteSpace(secret) ||
+            !root.TryGetProperty("obj", out var transaction))
         {
             return false;
         }
 
         var values = new StringBuilder();
 
-        foreach (var path in HmacFieldPaths)
+        foreach (var field in HmacFields)
         {
-            if (!TryGetValue(transaction, path, out var value))
+            if (!TryGetFieldValue(transaction, field, out var value))
                 return false;
 
             values.Append(value);
         }
 
-        byte[] suppliedSignature;
+        using var hmac = new HMACSHA512(
+            Encoding.UTF8.GetBytes(secret));
+
+        var computedHash = hmac.ComputeHash(
+            Encoding.UTF8.GetBytes(values.ToString()));
+
+        byte[] suppliedHash;
 
         try
         {
-            suppliedSignature = Convert.FromHexString(receivedHmac);
+            suppliedHash = Convert.FromHexString(suppliedHmac);
         }
         catch (FormatException)
         {
             return false;
         }
 
-        if (suppliedSignature.Length != 64)
-            return false;
-
-        var keyBytes = Encoding.UTF8.GetBytes(secret);
-        var messageBytes = Encoding.UTF8.GetBytes(values.ToString());
-
-        using var hmac = new HMACSHA512(keyBytes);
-
-        var computedSignature = hmac.ComputeHash(messageBytes);
-
-        return CryptographicOperations.FixedTimeEquals(
-            computedSignature,
-            suppliedSignature);
+        return suppliedHash.Length == computedHash.Length &&
+               CryptographicOperations.FixedTimeEquals(
+                   computedHash,
+                   suppliedHash);
     }
 
-    private static bool TryGetValue(
-        JsonElement element,
-        string[] path,
+    private static bool TryGetFieldValue(
+        JsonElement transaction,
+        string field,
         out string value)
     {
         value = string.Empty;
 
-        foreach (var propertyName in path)
+        var path = field.Split('.');
+        var current = transaction;
+
+        foreach (var segment in path)
         {
-            if (element.ValueKind != JsonValueKind.Object ||
-                !element.TryGetProperty(propertyName, out element))
+            if (current.ValueKind != JsonValueKind.Object ||
+                !current.TryGetProperty(segment, out var child))
             {
                 return false;
             }
+
+            current = child;
         }
 
-        switch (element.ValueKind)
+        switch (current.ValueKind)
         {
             case JsonValueKind.String:
-                value = element.GetString()!;
+                value = current.GetString() ?? string.Empty;
                 return true;
 
             case JsonValueKind.Number:
+                value = current.GetRawText();
+                return true;
+
             case JsonValueKind.True:
+                value = "true";
+                return true;
+
             case JsonValueKind.False:
-                value = element.GetRawText();
+                value = "false";
+                return true;
+
+            case JsonValueKind.Null:
+                value = string.Empty;
                 return true;
 
             default:

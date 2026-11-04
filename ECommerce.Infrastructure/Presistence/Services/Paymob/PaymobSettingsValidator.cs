@@ -17,6 +17,7 @@ public sealed class PaymobSettingsValidator
         if (string.IsNullOrWhiteSpace(options.SecretKey))
             errors.Add("Paymob SecretKey is required.");
 
+
         if (string.IsNullOrWhiteSpace(options.Currency))
             errors.Add("Paymob Currency is required.");
 

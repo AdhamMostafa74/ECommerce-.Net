@@ -194,6 +194,11 @@ namespace ECommerce.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("ProviderOrderId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<string>("ProviderPaymentId")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -219,6 +224,9 @@ namespace ECommerce.Infrastructure.Migrations
                     b.HasIndex("ProviderTransactionId")
                         .IsUnique()
                         .HasFilter("[ProviderTransactionId] IS NOT NULL");
+
+                    b.HasIndex("Provider", "ProviderOrderId")
+                        .IsUnique();
 
                     b.HasIndex("Provider", "ProviderPaymentId")
                         .IsUnique();

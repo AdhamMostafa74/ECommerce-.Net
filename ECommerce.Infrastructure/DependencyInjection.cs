@@ -175,6 +175,10 @@ public static class DependencyInjection
 
         client.Timeout = TimeSpan.FromSeconds(30);
     });
+
+        services.AddScoped<
+    IPaymentWebhookService,
+    PaymobPaymentWebhookService>();
         // Current authenticated user
 
         services.AddHttpContextAccessor();

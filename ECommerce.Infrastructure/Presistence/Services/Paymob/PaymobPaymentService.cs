@@ -123,17 +123,19 @@ public sealed class PaymobPaymentService : IPaymentService
                 cancellationToken: ct);
 
         if (intention is null ||
-            string.IsNullOrWhiteSpace(intention.Id) ||
-            string.IsNullOrWhiteSpace(intention.ClientSecret))
+     string.IsNullOrWhiteSpace(intention.Id) ||
+     intention.IntentionOrderId <= 0 ||
+     string.IsNullOrWhiteSpace(intention.ClientSecret))
         {
             throw new InvalidOperationException(
                 "Paymob returned an incomplete payment intention response.");
         }
 
         return new PaymentInitiationResult(
-      intention.Id,
-      intention.ClientSecret,
-      _settings.Currency);
+         intention.Id,
+         intention.IntentionOrderId.ToString(),
+         intention.ClientSecret,
+         _settings.Currency);
     }
 
     private static int ToMinorUnits(decimal amount)
