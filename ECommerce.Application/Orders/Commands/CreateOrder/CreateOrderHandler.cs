@@ -79,7 +79,6 @@ public sealed class CreateOrderHandler(
 
             if (string.IsNullOrWhiteSpace(customerEmail))
             {
-                // Do not create an order that cannot be paid.
                 return Result<CreateOrderResponse>.Failure(
                     OrderErrors.CustomerUnavailable);
             }
@@ -124,39 +123,34 @@ public sealed class CreateOrderHandler(
                 basketItem.Quantity);
         }
 
-        var orderRepository = unitOfWork.Repository<Order>();
-
-        orderRepository.Create(order);
-
-        // Save first so the order has a stable ID for Paymob.
-        await unitOfWork.SaveChangesAsync(ct);
-
         string? paymentClientSecret = null;
 
         if (request.PaymentMethod == PaymentMethod.Online)
         {
-            // If this fails, the basket remains available for retry.
             var paymentResult = await paymentService.CreatePaymentAsync(
                 order,
                 customerEmail!,
                 ct);
 
             var payment = Payment.Create(
-    order.Id,
-    "Paymob",
-    paymentResult.PaymentIntentId,
-    paymentResult.ProviderOrderId,
-    order.TotalPrice,
-    paymentResult.Currency);
+                order.Id,
+                "Paymob",
+                paymentResult.ProviderOrderId,
+                paymentResult.PaymentIntentId,
+                order.TotalPrice,
+                paymentResult.Currency);
 
             order.AddPayment(payment);
 
             paymentClientSecret = paymentResult.ClientSecret;
-
-            await unitOfWork.SaveChangesAsync(ct);
         }
 
-        // Delete only after order/payment initiation succeeds.
+        var orderRepository = unitOfWork.Repository<Order>();
+
+        orderRepository.Create(order);
+
+        await unitOfWork.SaveChangesAsync(ct);
+
         await basketRepository.DeleteAsync(
             currentUser.UserId,
             ct);
