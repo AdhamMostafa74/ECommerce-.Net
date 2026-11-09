@@ -20,10 +20,11 @@ public class ProductQueryService(IRepository<Product> _repo)
             PaginationRequest pagination,
             CancellationToken ct = default)
     {
-        var spec = new ProductsSpecification(pagination);
+        var spec = new ProductsSpecification();
 
         var products = await _repo
             .ApplySpecification(spec)
+            .AsNoTracking()
             .ProjectToType<GetAllProductResponse>()
             .ToPaginatedResultAsync(pagination, ct);
 
@@ -36,10 +37,11 @@ public class ProductQueryService(IRepository<Product> _repo)
             PaginationRequest pagination,
             CancellationToken ct = default)
     {
-        var spec = new DeletedProductsSpecification(pagination);
+        var spec = new DeletedProductsSpecification();
 
         var products = await _repo
             .ApplySpecification(spec)
+            .AsNoTracking()
             .ProjectToType<GetAllProductResponse>()
             .ToPaginatedResultAsync(pagination, ct);
 
@@ -52,10 +54,11 @@ public class ProductQueryService(IRepository<Product> _repo)
             PaginationRequest pagination,
             CancellationToken ct = default)
     {
-        var spec = new AllProductsSpecification(pagination);
+        var spec = new AllProductsSpecification();
 
         var products = await _repo
             .ApplySpecification(spec)
+            .AsNoTracking()
             .ProjectToType<GetAllProductResponse>()
             .ToPaginatedResultAsync(pagination, ct);
 

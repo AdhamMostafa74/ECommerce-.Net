@@ -17,9 +17,9 @@ public static class ImageFileValidator
                 [0x52, 0x49, 0x46, 0x46] // RIFF
         };
 
-    public static bool IsValid(FileUpload file)
+    public static bool IsValid(FileUpload? file)
     {
-        if (file.Content.Length > MaxFileSize)
+        if (file is null || file.Content is null || file.Content.Length > MaxFileSize)
             return false;
 
         if (!Signatures.TryGetValue(file.ContentType, out var signature))

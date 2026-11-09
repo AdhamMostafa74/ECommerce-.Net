@@ -62,6 +62,7 @@ public static class DependencyInjection
 
         services.AddScoped<DatabaseSeeder>();
         services.AddScoped<Interceptor>();
+        services.AddScoped<ISoftDeleteInterceptor, SoftDeleteInterceptor>();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 

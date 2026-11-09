@@ -1,12 +1,11 @@
-﻿using ECommerce.Application.Common.Pagination;
-using ECommerce.Domain.Entities;
+﻿using ECommerce.Domain.Entities;
 
 namespace ECommerce.Domain.Common.Specifications.ProductsSpecifications;
 
 public sealed class DeletedProductsSpecification
     : BaseSpecification<Product>
 {
-    public DeletedProductsSpecification(PaginationRequest pagination)
+    public DeletedProductsSpecification()
     {
         AddCriteria(p => p.IsDeleted);
 
@@ -14,9 +13,5 @@ public sealed class DeletedProductsSpecification
         AddInclude(p => p.ProductType);
 
         ApplyOrderBy(p => p.Name);
-
-        ApplyPaging(
-            (pagination.PageNumber - 1) * pagination.PageSize,
-            pagination.PageSize);
     }
 }

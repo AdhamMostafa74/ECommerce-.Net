@@ -20,20 +20,20 @@ public sealed class RegisterHandler(
         RegisterCommand request,
         CancellationToken cancellationToken)
     {
-        var result = await _identityService.CreateUserAsync(
+        var (Success, UserId, Error) = await _identityService.CreateUserAsync(
             request.Email,
             request.UserName,
             request.Password,
             cancellationToken);
 
-        if (!result.Success)
+        if (!Success)
         {
             return Result<Guid>.Failure(
-                result.Error!);
+                Error!);
         }
 
         var customer = Customer.Create(
-            result.UserId,
+            UserId,
             request.FirstName,
             request.LastName,
             request.PhoneNumber,
@@ -53,14 +53,14 @@ public sealed class RegisterHandler(
         catch
         {
             await _identityService.DeleteUserAsync(
-                result.UserId,
+                UserId,
                 cancellationToken);
 
             return Result<Guid>.Failure(
                 AuthenticationErrors.RegistrationFailed);
         }
 
-        return Result<Guid>.Success(result.UserId);
+        return Result<Guid>.Success(UserId);
     }
 }
 

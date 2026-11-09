@@ -22,11 +22,21 @@ public static class AuthenticationErrors
             "Authentication.EmailAlreadyExists",
             "Email is already registered.",
             ErrorType.Conflict);
+    public static readonly Error GenderError =
+        new(
+            "Authentication.GenderError",
+            "Invalid gender specified.",
+            ErrorType.Validation);
 
     public static readonly Error InvalidRegistrationData =
         new(
             "Authentication.InvalidRegistrationData",
             "The registration data is invalid.",
+            ErrorType.Validation);
+    public static readonly Error WeakPassword =
+        new(
+            "Authentication.WeakPassword",
+            "Please create a stronger password.",
             ErrorType.Validation);
 
     public static readonly Error RegistrationFailed =

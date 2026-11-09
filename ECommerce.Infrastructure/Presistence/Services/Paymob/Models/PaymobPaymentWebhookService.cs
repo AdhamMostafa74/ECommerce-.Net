@@ -105,12 +105,64 @@ public sealed class PaymobPaymentWebhookService(
         if (pending)
             return true;
 
-        // Refund and void processing will be implemented separately.
-        // Accept the callback so the provider does not needlessly retry it.
-        if (isRefunded || isVoided)
-            return true;
-
         var providerTransactionId = transactionId.ToString();
+
+        if (isRefunded)
+        {
+            if (payment.Status == PaymentStatus.Refunded)
+                return true;
+
+            if (payment.Status == PaymentStatus.Paid)
+            {
+                if (payment.ProviderTransactionId is null)
+                    payment.SetProviderTransactionId(providerTransactionId);
+
+                payment.MarkAsRefunded();
+                order.MarkPaymentAsRefunded();
+
+                if (order.Status == OrderStatus.Pending ||
+                    order.Status == OrderStatus.Processing)
+                {
+                    order.Cancel();
+                }
+
+                await dbContext.SaveChangesAsync(ct);
+            }
+
+            return true;
+        }
+
+        if (isVoided)
+        {
+            if (payment.Status == PaymentStatus.Failed ||
+                payment.Status == PaymentStatus.Refunded)
+            {
+                return true;
+            }
+
+            if (payment.ProviderTransactionId is null)
+                payment.SetProviderTransactionId(providerTransactionId);
+
+            if (payment.Status == PaymentStatus.Paid)
+            {
+                payment.MarkAsRefunded();
+                order.MarkPaymentAsRefunded();
+            }
+            else if (payment.Status == PaymentStatus.Pending)
+            {
+                payment.MarkAsFailed();
+                order.MarkPaymentAsFailed();
+            }
+
+            if (order.Status == OrderStatus.Pending ||
+                order.Status == OrderStatus.Processing)
+            {
+                order.Cancel();
+            }
+
+            await dbContext.SaveChangesAsync(ct);
+            return true;
+        }
 
         // Make repeated callbacks for the same final transaction idempotent.
         if (payment.Status == PaymentStatus.Paid)
@@ -177,9 +229,25 @@ public sealed class PaymobPaymentWebhookService(
     {
         value = false;
 
-        return element.TryGetProperty(propertyName, out var property) &&
-               (property.ValueKind == JsonValueKind.True ||
-                property.ValueKind == JsonValueKind.False) &&
-               property.GetBoolean();
+        if (!element.TryGetProperty(propertyName, out var property))
+            return false;
+
+        switch (property.ValueKind)
+        {
+            case JsonValueKind.True:
+                value = true;
+                return true;
+
+            case JsonValueKind.False:
+                value = false;
+                return true;
+
+            case JsonValueKind.Null:
+                value = false;
+                return true;
+
+            default:
+                return false;
+        }
     }
 }

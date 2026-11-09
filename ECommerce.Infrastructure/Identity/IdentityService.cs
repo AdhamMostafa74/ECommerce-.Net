@@ -2,6 +2,7 @@
 using ECommerce.Application.Authentication.Errors;
 using ECommerce.Application.Common.Identity;
 using ECommerce.Domain.Common;
+using ECommerce.Domain.Common.Types;
 using Microsoft.AspNetCore.Identity;
 
 namespace ECommerce.Infrastructure.Identity;
@@ -132,6 +133,22 @@ public sealed class IdentityService(
             error.Code == "DuplicateEmail"))
         {
             return AuthenticationErrors.EmailAlreadyExists;
+        }
+        if (errorList.Any(error =>
+        error.Code == "Authentication.GenderError"))
+        {
+            return AuthenticationErrors.GenderError;
+        }
+
+        var passwordError = errorList.FirstOrDefault(error =>
+            error.Code.StartsWith("Password", StringComparison.OrdinalIgnoreCase));
+
+        if (passwordError is not null)
+        {
+            return new Error(
+                "Authentication.WeakPassword",
+                passwordError.Description,
+                ErrorType.Validation);
         }
 
         return AuthenticationErrors.InvalidRegistrationData;

@@ -54,6 +54,7 @@ public class Interceptor(ICurrentUser currentUser) : SaveChangesInterceptor
                     break;
 
                 case EntityState.Deleted:
+                    entry.State = EntityState.Modified;
                     entry.Entity.MarkAsDeleted(actor);
                     break;
             }

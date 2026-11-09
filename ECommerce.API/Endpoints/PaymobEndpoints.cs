@@ -7,6 +7,8 @@ public static class PaymobEndpoints
     public static IEndpointRouteBuilder MapPaymobEndpoints(
         this IEndpointRouteBuilder endpoints)
     {
+        const long maxCallbackSizeBytes = 256 * 1024; // 256 KB
+
         endpoints.MapPost(
             "/api/v1/payments/paymob/callback",
             async (
@@ -14,6 +16,9 @@ public static class PaymobEndpoints
                 IPaymentWebhookService webhookService,
                 CancellationToken ct) =>
             {
+                if (request.ContentLength > maxCallbackSizeBytes)
+                    return Results.BadRequest();
+
                 var hmac = request.Query["hmac"].ToString();
 
                 if (string.IsNullOrWhiteSpace(hmac))
@@ -22,6 +27,9 @@ public static class PaymobEndpoints
                 using var reader = new StreamReader(request.Body);
 
                 var callbackBody = await reader.ReadToEndAsync(ct);
+
+                if (callbackBody.Length > maxCallbackSizeBytes)
+                    return Results.BadRequest();
 
                 var processed = await webhookService
                     .ProcessPaymobCallbackAsync(

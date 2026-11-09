@@ -34,9 +34,6 @@ public class Product : BaseEntity
         ChangePrice(price);
         ChangeBrand(brandId);
         ChangeProductType(productTypeId);
-
-        ProductBrandId = brandId;
-        ProductTypeId = productTypeId;
     }
 
     // Used by the application when creating a product
@@ -103,11 +100,8 @@ public class Product : BaseEntity
         if (string.IsNullOrWhiteSpace(pictureUrl))
             throw new ArgumentException("Picture URL is required.");
 
-        if (string.IsNullOrWhiteSpace(picturePublicId))
-            throw new ArgumentException("Picture public ID is required.");
-
         PictureUrl = pictureUrl.Trim();
-        PicturePublicId = picturePublicId.Trim();
+        PicturePublicId = picturePublicId?.Trim() ?? string.Empty;
     }
 
     public void ChangePrice(decimal newPrice)
