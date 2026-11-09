@@ -19,7 +19,8 @@ public class ProductSeeder(ECommerceDbContext db) : IDataSeeder
          p.PictureUrl,
          p.Price,
          p.BrandId,
-         p.ProductTypeId),
+         p.ProductTypeId,
+         p.Id),
      ct);
     }
 }

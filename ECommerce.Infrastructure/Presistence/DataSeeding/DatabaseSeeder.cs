@@ -8,11 +8,10 @@ public class DatabaseSeeder(IEnumerable<IDataSeeder> dataSeeders , ECommerceDbCo
     public async Task SeedAll(CancellationToken ct = default) { 
     
     
-        foreach(var seeder in dataSeeders)
+        foreach (var seeder in dataSeeders.OrderBy(s => s.Order))
         {
             await seeder.SeedAsync(ct);
             await db.SaveChangesAsync(ct);
-
         }
     }
 }

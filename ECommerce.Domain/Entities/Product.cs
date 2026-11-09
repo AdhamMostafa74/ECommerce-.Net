@@ -65,9 +65,10 @@ public class Product : BaseEntity
         string pictureUrl,
         decimal price,
         Guid brandId,
-        Guid productTypeId)
+        Guid productTypeId,
+        Guid id = default)
     {
-        return new Product(
+        var product = new Product(
             name,
             description,
             pictureUrl,
@@ -75,6 +76,11 @@ public class Product : BaseEntity
             price,
             brandId,
             productTypeId);
+
+        if (id != Guid.Empty)
+            product.Id = id;
+
+        return product;
     }
 
     public void SetName(string name)

@@ -73,15 +73,15 @@ public static class OrderEndpoints
         .WithSummary("Create an order from the current user's basket")
         .WithDescription(
             "Creates an order using the authenticated user's basket, customer profile, and supplied shipping details.")
-        .Produces<ApiResponse<Guid>>(
+        .Produces<ApiResponse<CreateOrderResponse>>(
             StatusCodes.Status200OK)
-        .Produces<ApiResponse<Guid>>(
+        .Produces<ApiResponse<CreateOrderResponse>>(
             StatusCodes.Status400BadRequest)
-        .Produces<ApiResponse<Guid>>(
+        .Produces<ApiResponse<CreateOrderResponse>>(
             StatusCodes.Status404NotFound)
-        .Produces<ApiResponse<Guid>>(
+        .Produces<ApiResponse<CreateOrderResponse>>(
             StatusCodes.Status409Conflict)
-        .Produces<ApiResponse<Guid>>(
+        .Produces<ApiResponse<CreateOrderResponse>>(
             StatusCodes.Status500InternalServerError);
 
 
