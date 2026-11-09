@@ -23,6 +23,7 @@ public sealed class PaymentConfiguration
             .IsRequired();
 
         builder.Property(payment => payment.Status)
+            .IsConcurrencyToken()
             .IsRequired();
 
         builder.Property(payment => payment.Amount)

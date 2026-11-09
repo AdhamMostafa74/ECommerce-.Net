@@ -11,6 +11,7 @@ using ECommerce.Domain.Entities;
 using ECommerce.Domain.Entities.Orders;
 using ECommerce.Domain.Repositories;
 using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace ECommerce.Application.Orders.Commands.CreateOrder;
 
@@ -19,7 +20,8 @@ public sealed class CreateOrderHandler(
     IBasketRepository basketRepository,
     ICurrentUser currentUser,
     IIdentityService identityService,
-    IPaymentService paymentService)
+    IPaymentService paymentService,
+    ILogger<CreateOrderHandler> logger)
     : IRequestHandler<
         CreateOrderCommand,
         Result<CreateOrderResponse>>
@@ -123,14 +125,50 @@ public sealed class CreateOrderHandler(
                 basketItem.Quantity);
         }
 
+        var orderRepository = unitOfWork.Repository<Order>();
+
+        orderRepository.Create(order);
+
+        await unitOfWork.SaveChangesAsync(ct);
+
         string? paymentClientSecret = null;
 
         if (request.PaymentMethod == PaymentMethod.Online)
         {
-            var paymentResult = await paymentService.CreatePaymentAsync(
-                order,
-                customerEmail!,
-                ct);
+            PaymentInitiationResult paymentResult;
+
+            try
+            {
+                paymentResult = await paymentService.CreatePaymentAsync(
+                    order,
+                    customerEmail!,
+                    ct);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(
+                    ex,
+                    "Payment initiation with Paymob failed for order {OrderId}.",
+                    order.Id);
+
+                order.MarkPaymentAsFailed();
+                order.Cancel();
+
+                try
+                {
+                    await unitOfWork.SaveChangesAsync(CancellationToken.None);
+                }
+                catch (Exception saveEx)
+                {
+                    logger.LogError(
+                        saveEx,
+                        "Failed to update order {OrderId} status after payment initiation failure.",
+                        order.Id);
+                }
+
+                return Result<CreateOrderResponse>.Failure(
+                    OrderErrors.PaymentFailed);
+            }
 
             var payment = Payment.Create(
                 order.Id,
@@ -142,18 +180,40 @@ public sealed class CreateOrderHandler(
 
             order.AddPayment(payment);
 
+            try
+            {
+                await unitOfWork.SaveChangesAsync(CancellationToken.None);
+            }
+            catch (Exception ex)
+            {
+                logger.LogCritical(
+                    ex,
+                    "CRITICAL: Payment intention created externally (ProviderOrderId: {ProviderOrderId}, PaymentIntentId: {PaymentIntentId}) but failed to persist payment entity for order {OrderId}.",
+                    paymentResult.ProviderOrderId,
+                    paymentResult.PaymentIntentId,
+                    order.Id);
+
+                return Result<CreateOrderResponse>.Failure(
+                    OrderErrors.PaymentPersistenceFailed);
+            }
+
             paymentClientSecret = paymentResult.ClientSecret;
         }
 
-        var orderRepository = unitOfWork.Repository<Order>();
-
-        orderRepository.Create(order);
-
-        await unitOfWork.SaveChangesAsync(ct);
-
-        await basketRepository.DeleteAsync(
-            currentUser.UserId,
-            ct);
+        try
+        {
+            await basketRepository.DeleteAsync(
+                currentUser.UserId,
+                ct);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(
+                ex,
+                "Failed to clear basket for user {UserId} after successfully creating order {OrderId}.",
+                currentUser.UserId,
+                order.Id);
+        }
 
         return Result<CreateOrderResponse>.Success(
             new CreateOrderResponse(

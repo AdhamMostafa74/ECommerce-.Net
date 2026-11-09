@@ -21,6 +21,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .IsRequired();
         builder.Property(x => x.PaymentStatus)
             .HasConversion<int>()
+            .IsConcurrencyToken()
             .IsRequired();
 
         builder.Property(x => x.PaymentMethod)

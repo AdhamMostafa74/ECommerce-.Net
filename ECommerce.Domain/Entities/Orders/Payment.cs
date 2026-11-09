@@ -103,7 +103,8 @@ public class Payment : BaseEntity
                 nameof(transactionId));
 
         if (ProviderTransactionId is not null &&
-            ProviderTransactionId != transactionId)
+            ProviderTransactionId != transactionId &&
+            Status != PaymentStatus.Failed)
         {
             throw new InvalidOperationException(
                 "A different provider transaction ID is already recorded.");

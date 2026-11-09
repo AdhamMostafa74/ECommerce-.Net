@@ -101,6 +101,7 @@ namespace ECommerce.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("PaymentStatus")
+                        .IsConcurrencyToken()
                         .HasColumnType("int");
 
                     b.Property<int>("Status")
@@ -209,6 +210,7 @@ namespace ECommerce.Infrastructure.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("Status")
+                        .IsConcurrencyToken()
                         .HasColumnType("int");
 
                     b.Property<DateTimeOffset?>("UpdatedAt")

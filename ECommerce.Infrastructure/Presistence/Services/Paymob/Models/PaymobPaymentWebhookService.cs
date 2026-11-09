@@ -4,13 +4,15 @@ using ECommerce.Application.Common.Payments;
 using ECommerce.Domain.Entities.Orders;
 using ECommerce.Infrastructure.Presistence.DbContexts;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ECommerce.Infrastructure.Presistence.Services.Paymob;
 
 public sealed class PaymobPaymentWebhookService(
     ECommerceDbContext dbContext,
-    IOptions<PaymobSettings> settings)
+    IOptions<PaymobSettings> settings,
+    ILogger<PaymobPaymentWebhookService> logger)
     : IPaymentWebhookService
 {
     private readonly PaymobSettings _settings = settings.Value;
@@ -32,8 +34,9 @@ public sealed class PaymobPaymentWebhookService(
         {
             document = JsonDocument.Parse(callbackBody);
         }
-        catch (JsonException)
+        catch (JsonException ex)
         {
+            logger.LogWarning(ex, "Failed to parse Paymob webhook callback JSON body.");
             return false;
         }
 
@@ -46,12 +49,14 @@ public sealed class PaymobPaymentWebhookService(
                 hmac,
                 _settings.HmacSecret))
         {
+            logger.LogWarning("Paymob webhook callback HMAC verification failed.");
             return false;
         }
 
         if (!TryGetString(root, "type", out var type) ||
             type != "TRANSACTION")
         {
+            logger.LogInformation("Ignoring non-TRANSACTION Paymob callback type: {CallbackType}.", type);
             return false;
         }
 
@@ -68,26 +73,83 @@ public sealed class PaymobPaymentWebhookService(
             !TryGetBoolean(transaction, "is_refunded", out var isRefunded) ||
             !TryGetBoolean(transaction, "is_voided", out var isVoided))
         {
+            logger.LogWarning("Paymob transaction callback missing required fields.");
             return false;
         }
+
+        var providerOrderIdStr = providerOrderId.ToString();
 
         var payment = await dbContext.Payments
             .SingleOrDefaultAsync(
                 payment =>
                     payment.Provider == "Paymob" &&
-                    payment.ProviderOrderId == providerOrderId.ToString(),
+                    payment.ProviderOrderId == providerOrderIdStr,
                 ct);
 
-        if (payment is null)
-            return false;
+        Order? order = null;
 
-        var order = await dbContext.Orders
-            .SingleOrDefaultAsync(
-                order => order.Id == payment.OrderId,
-                ct);
+        if (payment is not null)
+        {
+            order = await dbContext.Orders
+                .SingleOrDefaultAsync(
+                    order => order.Id == payment.OrderId,
+                    ct);
+        }
+        else
+        {
+            // Self-healing: if the payment entity was not persisted during order creation,
+            // attempt correlation via special_reference which carries the Order.Id
+            if (TryGetString(providerOrder, "special_reference", out var specialRef) ||
+                TryGetString(transaction, "special_reference", out specialRef) ||
+                TryGetString(providerOrder, "merchant_order_id", out specialRef))
+            {
+                if (Guid.TryParse(specialRef, out var correlatedOrderId))
+                {
+                    order = await dbContext.Orders
+                        .Include(o => o.Payments)
+                        .SingleOrDefaultAsync(o => o.Id == correlatedOrderId, ct);
 
-        if (order is null)
+                    if (order is not null)
+                    {
+                        payment = order.Payments.FirstOrDefault(p =>
+                            p.Provider == "Paymob" &&
+                            p.ProviderOrderId == providerOrderIdStr);
+
+                        if (payment is null)
+                        {
+                            var providerPaymentId = TryGetString(transaction, "intention_id", out var intentionId)
+                                ? intentionId
+                                : providerOrderIdStr;
+
+                            payment = Payment.Create(
+                                order.Id,
+                                "Paymob",
+                                providerOrderIdStr,
+                                providerPaymentId,
+                                order.TotalPrice,
+                                currency);
+
+                            order.AddPayment(payment);
+                            dbContext.Payments.Add(payment);
+
+                            logger.LogWarning(
+                                "Self-healed missing Payment record for Order {OrderId} using Paymob ProviderOrderId {ProviderOrderId}.",
+                                order.Id,
+                                providerOrderIdStr);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (payment is null || order is null)
+        {
+            logger.LogWarning(
+                "Webhook received for unknown payment/order. ProviderOrderId: {ProviderOrderId}, TransactionId: {TransactionId}.",
+                providerOrderId,
+                transactionId);
             return false;
+        }
 
         var callbackAmount = amountCents / 100m;
 
@@ -97,6 +159,13 @@ public sealed class PaymobPaymentWebhookService(
                 payment.Currency,
                 StringComparison.OrdinalIgnoreCase))
         {
+            logger.LogWarning(
+                "Payment amount/currency mismatch for Order {OrderId}. Expected: {ExpectedAmount} {ExpectedCurrency}, Received: {ReceivedAmount} {ReceivedCurrency}.",
+                order.Id,
+                payment.Amount,
+                payment.Currency,
+                callbackAmount,
+                currency);
             return false;
         }
 
@@ -107,18 +176,60 @@ public sealed class PaymobPaymentWebhookService(
 
         var providerTransactionId = transactionId.ToString();
 
-        if (isRefunded)
+        try
         {
-            if (payment.Status == PaymentStatus.Refunded)
-                return true;
-
-            if (payment.Status == PaymentStatus.Paid)
+            if (isRefunded)
             {
+                if (payment.Status == PaymentStatus.Refunded)
+                    return true;
+
+                if (payment.Status == PaymentStatus.Pending)
+                {
+                    payment.MarkAsPaid();
+                    order.MarkPaymentAsPaid();
+                }
+
+                if (payment.Status == PaymentStatus.Paid)
+                {
+                    if (payment.ProviderTransactionId is null)
+                        payment.SetProviderTransactionId(providerTransactionId);
+
+                    payment.MarkAsRefunded();
+                    order.MarkPaymentAsRefunded();
+
+                    if (order.Status == OrderStatus.Pending ||
+                        order.Status == OrderStatus.Processing)
+                    {
+                        order.Cancel();
+                    }
+
+                    await SaveChangesSafelyAsync(ct);
+                }
+
+                return true;
+            }
+
+            if (isVoided)
+            {
+                if (payment.Status == PaymentStatus.Failed ||
+                    payment.Status == PaymentStatus.Refunded)
+                {
+                    return true;
+                }
+
                 if (payment.ProviderTransactionId is null)
                     payment.SetProviderTransactionId(providerTransactionId);
 
-                payment.MarkAsRefunded();
-                order.MarkPaymentAsRefunded();
+                if (payment.Status == PaymentStatus.Paid)
+                {
+                    payment.MarkAsRefunded();
+                    order.MarkPaymentAsRefunded();
+                }
+                else if (payment.Status == PaymentStatus.Pending)
+                {
+                    payment.MarkAsFailed();
+                    order.MarkPaymentAsFailed();
+                }
 
                 if (order.Status == OrderStatus.Pending ||
                     order.Status == OrderStatus.Processing)
@@ -126,71 +237,72 @@ public sealed class PaymobPaymentWebhookService(
                     order.Cancel();
                 }
 
-                await dbContext.SaveChangesAsync(ct);
+                await SaveChangesSafelyAsync(ct);
+                return true;
             }
 
-            return true;
-        }
+            // If already marked as Paid:
+            if (payment.Status == PaymentStatus.Paid)
+            {
+                if (payment.ProviderTransactionId == providerTransactionId)
+                    return true;
 
-        if (isVoided)
-        {
-            if (payment.Status == PaymentStatus.Failed ||
-                payment.Status == PaymentStatus.Refunded)
+                logger.LogInformation(
+                    "Order {OrderId} is already Paid with transaction {ExistingTxnId}. Ignoring callback for transaction {NewTxnId}.",
+                    order.Id,
+                    payment.ProviderTransactionId,
+                    providerTransactionId);
+                return true;
+            }
+
+            // If previously marked as Failed, but another failed transaction arrives:
+            if (payment.Status == PaymentStatus.Failed && !success)
             {
                 return true;
             }
 
-            if (payment.ProviderTransactionId is null)
-                payment.SetProviderTransactionId(providerTransactionId);
+            payment.SetProviderTransactionId(providerTransactionId);
 
-            if (payment.Status == PaymentStatus.Paid)
+            if (success)
             {
-                payment.MarkAsRefunded();
-                order.MarkPaymentAsRefunded();
+                payment.MarkAsPaid();
+                order.MarkPaymentAsPaid();
             }
-            else if (payment.Status == PaymentStatus.Pending)
+            else
             {
                 payment.MarkAsFailed();
                 order.MarkPaymentAsFailed();
             }
 
-            if (order.Status == OrderStatus.Pending ||
-                order.Status == OrderStatus.Processing)
-            {
-                order.Cancel();
-            }
+            await SaveChangesSafelyAsync(ct);
+            return true;
+        }
+        catch (InvalidOperationException ex)
+        {
+            logger.LogWarning(
+                ex,
+                "Domain state transition conflict for Order {OrderId}, Payment {PaymentId}, Transaction {TransactionId}.",
+                order.Id,
+                payment.Id,
+                providerTransactionId);
+            return true;
+        }
+    }
 
+    private async Task<bool> SaveChangesSafelyAsync(CancellationToken ct)
+    {
+        try
+        {
             await dbContext.SaveChangesAsync(ct);
             return true;
         }
-
-        // Make repeated callbacks for the same final transaction idempotent.
-        if (payment.Status == PaymentStatus.Paid)
+        catch (DbUpdateException ex)
         {
-            return payment.ProviderTransactionId == providerTransactionId;
+            logger.LogWarning(
+                ex,
+                "DbUpdateException during Paymob webhook processing. Handled as idempotent duplicate callback.");
+            return true;
         }
-
-        if (payment.Status == PaymentStatus.Failed)
-        {
-            return payment.ProviderTransactionId == providerTransactionId;
-        }
-
-        payment.SetProviderTransactionId(providerTransactionId);
-
-        if (success)
-        {
-            payment.MarkAsPaid();
-            order.MarkPaymentAsPaid();
-        }
-        else
-        {
-            payment.MarkAsFailed();
-            order.MarkPaymentAsFailed();
-        }
-
-        await dbContext.SaveChangesAsync(ct);
-
-        return true;
     }
 
     private static bool TryGetInt64(

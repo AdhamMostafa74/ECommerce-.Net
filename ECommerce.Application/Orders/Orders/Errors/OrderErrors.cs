@@ -25,4 +25,14 @@ public static class OrderErrors
         "Order.NotFound",
         "Order was not found.",
         ErrorType.NotFound);
+
+    public static readonly Error PaymentFailed = new(
+        "Order.PaymentFailed",
+        "Failed to initiate payment with the payment provider.",
+        ErrorType.Failure);
+
+    public static readonly Error PaymentPersistenceFailed = new(
+        "Order.PaymentPersistenceFailed",
+        "Failed to record payment details for the order.",
+        ErrorType.Failure);
 }
