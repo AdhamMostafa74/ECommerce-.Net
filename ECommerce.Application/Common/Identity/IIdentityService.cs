@@ -14,6 +14,10 @@ public interface IIdentityService
         Guid userId,
         CancellationToken cancellationToken = default);
 
+    Task<string?> GetSecurityStampAsync(
+        Guid userId,
+        CancellationToken cancellationToken = default);
+
     Task<(bool Success, Guid UserId, Error? Error)> CreateUserAsync(
         string email,
         string userName,
@@ -25,6 +29,42 @@ public interface IIdentityService
         CancellationToken cancellationToken = default);
 
     Task<string?> GetEmailAsync(
-    Guid userId,
-    CancellationToken cancellationToken = default);
+        Guid userId,
+        CancellationToken cancellationToken = default);
+
+    Task<(string Email, string UserName)?> GetUserBasicInfoAsync(
+        Guid userId,
+        CancellationToken cancellationToken = default);
+
+    Task<(bool Success, Error? Error)> ChangePasswordAsync(
+        Guid userId,
+        string currentPassword,
+        string newPassword,
+        CancellationToken cancellationToken = default);
+
+    Task<string?> GeneratePasswordResetTokenAsync(
+        string email,
+        CancellationToken cancellationToken = default);
+
+    Task<(bool Success, Error? Error)> ResetPasswordAsync(
+        string email,
+        string token,
+        string newPassword,
+        CancellationToken cancellationToken = default);
+
+    Task<(bool Success, string? Token, Error? Error)> GenerateChangeEmailTokenAsync(
+        Guid userId,
+        string newEmail,
+        CancellationToken cancellationToken = default);
+
+    Task<(bool Success, Error? Error)> ConfirmEmailChangeAsync(
+        Guid userId,
+        string newEmail,
+        string token,
+        CancellationToken cancellationToken = default);
+
+    Task<(bool Success, Error? Error)> UpdateUserNameAsync(
+        Guid userId,
+        string newUserName,
+        CancellationToken cancellationToken = default);
 }

@@ -5,5 +5,6 @@ public interface IJwtTokenService
     string GenerateToken(
         Guid userId,
         string email,
-        IEnumerable<string> roles);
+        IEnumerable<string> roles,
+        string? securityStamp = null);
 }

@@ -1,6 +1,7 @@
 ﻿#region:Imports 
 using ECommerce.Application.Brands;
 using ECommerce.Application.Common.Cloudinary;
+using ECommerce.Application.Common.Email;
 using ECommerce.Application.Common.Identity;
 using ECommerce.Application.Common.Payments;
 using ECommerce.Application.Orders;
@@ -16,6 +17,7 @@ using ECommerce.Infrastructure.Presistence.Interceptors;
 using ECommerce.Infrastructure.Presistence.Queries;
 using ECommerce.Infrastructure.Presistence.Repositories;
 using ECommerce.Infrastructure.Presistence.Services.CloudinaryServices;
+using ECommerce.Infrastructure.Presistence.Services.Email;
 using ECommerce.Infrastructure.Presistence.Services.Paymob;
 using ECommerce.Infrastructure.Presistence.Services.Paymob.Models;
 using ECommerce.Infrastructure.Presistence.BackgroundServices;
@@ -28,6 +30,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 #endregion
 
@@ -96,14 +100,40 @@ public static class DependencyInjection
         // Identity
 
         services
+            .AddDataProtection();
+
+        services
             .AddIdentityCore<ApplicationUser>()
             .AddRoles<IdentityRole<Guid>>()
-            .AddEntityFrameworkStores<ECommerceDbContext>();
+            .AddEntityFrameworkStores<ECommerceDbContext>()
+            .AddDefaultTokenProviders();
+
+        services.Configure<DataProtectionTokenProviderOptions>(options =>
+        {
+            options.TokenLifespan = TimeSpan.FromHours(1);
+        });
 
         services.Configure<IdentityOptions>(options =>
         {
             options.User.RequireUniqueEmail = true;
+            options.Password.RequiredLength = 8;
+            options.Password.RequireDigit = true;
+            options.Password.RequireUppercase = true;
+            options.Password.RequireLowercase = false;
+            options.Password.RequireNonAlphanumeric = true;
+            options.Tokens.PasswordResetTokenProvider = TokenOptions.DefaultEmailProvider;
+            options.Tokens.ChangeEmailTokenProvider = TokenOptions.DefaultEmailProvider;
         });
+
+        // Email
+
+        services.Configure<EmailSettings>(
+            configuration.GetSection(
+                EmailSettings.SectionName));
+
+        services.AddScoped<
+            IEmailService,
+            SmtpEmailService>();
 
         services.AddScoped<
             IBasketRepository,
@@ -151,6 +181,43 @@ public static class DependencyInjection
 
                         ClockSkew = TimeSpan.Zero
                     };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = async context =>
+                    {
+                        var principal = context.Principal;
+
+                        var userIdValue =
+                            principal?.FindFirstValue(ClaimTypes.NameIdentifier)
+                            ?? principal?.FindFirstValue(JwtRegisteredClaimNames.Sub);
+
+                        var tokenSecurityStamp =
+                            principal?.FindFirstValue(JwtTokenService.SecurityStampClaimType);
+
+                        if (!Guid.TryParse(userIdValue, out var userId) ||
+                            string.IsNullOrWhiteSpace(tokenSecurityStamp))
+                        {
+                            context.Fail("Invalid security session claims.");
+                            return;
+                        }
+
+                        var userManager = context.HttpContext.RequestServices
+                            .GetRequiredService<UserManager<ApplicationUser>>();
+
+                        var user = await userManager.FindByIdAsync(
+                            userId.ToString());
+
+                        if (user is null ||
+                            !string.Equals(
+                                user.SecurityStamp,
+                                tokenSecurityStamp,
+                                StringComparison.Ordinal))
+                        {
+                            context.Fail("Session has been revoked.");
+                        }
+                    }
+                };
             });
 
 

@@ -60,6 +60,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -69,6 +70,7 @@ app.MapBrandEndpoints();
 app.MapBasketEndpoints();
 app.MapOrderEndpoints();
 app.MapAuthenticationEndpoints();
+app.MapAccountEndpoints();
 app.MapPaymobEndpoints();
 
 app.Run();

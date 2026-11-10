@@ -12,18 +12,27 @@ public sealed class JwtTokenService(
     IOptions<JwtSettings> options)
     : IJwtTokenService
 {
+    public const string SecurityStampClaimType = "security_stamp";
+
     private readonly JwtSettings _jwtSettings = options.Value;
 
     public string GenerateToken(
         Guid userId,
         string email,
-        IEnumerable<string> roles)
+        IEnumerable<string> roles,
+        string? securityStamp = null)
     {
         var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Sub, userId.ToString()),
             new(JwtRegisteredClaimNames.Email, email),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
+
+        if (!string.IsNullOrWhiteSpace(securityStamp))
+        {
+            claims.Add(new Claim(SecurityStampClaimType, securityStamp));
+        }
 
         claims.AddRange(
             roles.Select(role => new Claim(

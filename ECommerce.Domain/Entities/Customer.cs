@@ -44,5 +44,19 @@ public class Customer : BaseEntity
             dateOfBirth,
             gender);
     }
+
+    public void UpdateProfile(
+        string firstName,
+        string lastName,
+        string phoneNumber,
+        DateOnly dateOfBirth,
+        string gender)
+    {
+        FirstName = firstName.Trim();
+        LastName = lastName.Trim();
+        PhoneNumber = phoneNumber.Trim();
+        DateOfBirth = dateOfBirth;
+        Gender = gender.Trim();
+    }
 }
 

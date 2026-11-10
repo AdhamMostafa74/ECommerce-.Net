@@ -30,10 +30,15 @@ public sealed class LoginHandler(
             credentials.UserId,
             cancellationToken);
 
+        var securityStamp = await _identityService.GetSecurityStampAsync(
+            credentials.UserId,
+            cancellationToken);
+
         var token = _jwtTokenService.GenerateToken(
             credentials.UserId,
             request.Email,
-            roles);
+            roles,
+            securityStamp);
 
         return Result<string>.Success(token);
     }
