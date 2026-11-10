@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace ECommerce.Infrastructure.Presistence.Services.Paymob;
+namespace ECommerce.Infrastructure.Presistence.Services.Paymob.Models;
 
 public sealed class PaymobPaymentWebhookService(
     ECommerceDbContext dbContext,
@@ -267,6 +267,11 @@ public sealed class PaymobPaymentWebhookService(
             {
                 payment.MarkAsPaid();
                 order.MarkPaymentAsPaid();
+
+                if (order.Status == OrderStatus.Pending)
+                {
+                    order.MarkAsProcessing();
+                }
             }
             else
             {

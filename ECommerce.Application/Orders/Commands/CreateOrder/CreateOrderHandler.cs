@@ -132,6 +132,7 @@ public sealed class CreateOrderHandler(
         await unitOfWork.SaveChangesAsync(ct);
 
         string? paymentClientSecret = null;
+        string? paymentUrl = null;
 
         if (request.PaymentMethod == PaymentMethod.Online)
         {
@@ -180,6 +181,9 @@ public sealed class CreateOrderHandler(
 
             order.AddPayment(payment);
 
+            var paymentRepository = unitOfWork.Repository<Payment>();
+            paymentRepository.Create(payment);
+
             try
             {
                 await unitOfWork.SaveChangesAsync(CancellationToken.None);
@@ -198,6 +202,7 @@ public sealed class CreateOrderHandler(
             }
 
             paymentClientSecret = paymentResult.ClientSecret;
+            paymentUrl = paymentResult.PaymentUrl;
         }
 
         try
@@ -218,6 +223,7 @@ public sealed class CreateOrderHandler(
         return Result<CreateOrderResponse>.Success(
             new CreateOrderResponse(
                 order.Id,
-                paymentClientSecret));
+                paymentClientSecret,
+                paymentUrl));
     }
 }

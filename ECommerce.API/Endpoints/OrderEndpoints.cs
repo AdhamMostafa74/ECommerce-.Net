@@ -2,8 +2,10 @@
 using ECommerce.API.Responses;
 using ECommerce.Application.Common.Pagination;
 using ECommerce.Application.Orders.Commands.CreateOrder;
+using ECommerce.Application.Orders.Commands.RefundOrder;
 using ECommerce.Application.Orders.Queries.GetMyOrders;
 using ECommerce.Application.Orders.Queries.GetOrderDetails;
+using ECommerce.Application.Orders.Queries.VerifyOrderPayment;
 using ECommerce.Domain.Entities.Orders;
 using MediatR;
 
@@ -110,9 +112,70 @@ public static class OrderEndpoints
         .Produces<ApiResponse<GetOrderDetailsResponse>>(
             StatusCodes.Status404NotFound);
 
+
+        // Verify payment status for an order (Frontend return verification)
+
+
+        group.MapGet("/{orderId:guid}/verify-payment", async (
+            Guid orderId,
+            ISender sender,
+            HttpContext context,
+            CancellationToken ct) =>
+        {
+            var result = await sender.Send(
+                new VerifyOrderPaymentQuery(orderId),
+                ct);
+
+            return result.ToApiResult(context);
+        })
+        .WithName("VerifyOrderPayment")
+        .WithSummary("Verify payment status for an order")
+        .WithDescription("Checks whether the payment for the specified order has completed.")
+        .Produces<ApiResponse<VerifyOrderPaymentResponse>>(
+            StatusCodes.Status200OK)
+        .Produces<ApiResponse<VerifyOrderPaymentResponse>>(
+            StatusCodes.Status404NotFound);
+
+
+        // Initiate a refund for a paid order (Admin only)
+
+
+        group.MapPost("/{orderId:guid}/refund", async (
+            Guid orderId,
+            RefundOrderRequest? request,
+            ISender sender,
+            HttpContext context,
+            CancellationToken ct) =>
+        {
+            var command = new RefundOrderCommand(
+                orderId,
+                request?.Amount);
+
+            var result = await sender.Send(command, ct);
+
+            return result.ToApiResult(context);
+        })
+        .RequireAuthorization(policy => policy.RequireRole("Admin"))
+        .WithName("RefundOrder")
+        .WithSummary("Refund an order payment (Admin only)")
+        .WithDescription("Initiates a refund with Paymob and marks the order and payment as refunded.")
+        .Produces<ApiResponse<RefundOrderResponse>>(
+            StatusCodes.Status200OK)
+        .Produces<ApiResponse<RefundOrderResponse>>(
+            StatusCodes.Status400BadRequest)
+        .Produces<ApiResponse<RefundOrderResponse>>(
+            StatusCodes.Status404NotFound)
+        .Produces<ApiResponse<RefundOrderResponse>>(
+            StatusCodes.Status409Conflict)
+        .Produces<ApiResponse<RefundOrderResponse>>(
+            StatusCodes.Status500InternalServerError);
+
         return endpoints;
     }
 }
+
+public sealed record RefundOrderRequest(
+    decimal? Amount);
 
 public sealed record CreateOrderRequest(
     string Street,

@@ -13,6 +13,9 @@ public sealed class PaymobSettings
     public string SecretKey { get; init; } = string.Empty;
 
     [Required]
+    public string PublicKey { get; init; } = string.Empty;
+
+    [Required]
     public string Currency { get; init; } = string.Empty;
 
     [Required]

@@ -31,6 +31,7 @@ public sealed class OrderQueryService(IRepository<Order> repo)
             .Select(order => new GetMyOrdersResponse(
                 order.Id,
                 order.Status,
+                order.PaymentStatus,
                 order.TotalPrice,
                 order.TotalQuantity,
                 order.CreatedAt))
@@ -59,6 +60,7 @@ public sealed class OrderQueryService(IRepository<Order> repo)
             .Select(order => new GetOrderDetailsResponse(
                 order.Id,
                 order.Status,
+                order.PaymentStatus,
                 order.TotalPrice,
                 order.TotalQuantity,
                 order.CreatedAt,

@@ -14,6 +14,9 @@ public sealed class PaymobSettingsValidator
         if (string.IsNullOrWhiteSpace(options.SecretKey))
             errors.Add("Paymob SecretKey is required.");
 
+        if (string.IsNullOrWhiteSpace(options.PublicKey))
+            errors.Add("Paymob PublicKey is required.");
+
         if (string.IsNullOrWhiteSpace(options.HmacSecret))
             errors.Add("Paymob HmacSecret is required.");
 

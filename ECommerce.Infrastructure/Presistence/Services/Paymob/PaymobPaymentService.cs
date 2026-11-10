@@ -131,11 +131,93 @@ public sealed class PaymobPaymentService : IPaymentService
                 "Paymob returned an incomplete payment intention response.");
         }
 
+        var paymentUrl = !string.IsNullOrWhiteSpace(_settings.PublicKey)
+            ? $"https://accept.paymob.com/unifiedcheckout/?publicKey={_settings.PublicKey.Trim()}&clientSecret={intention.ClientSecret.Trim()}"
+            : null;
+
         return new PaymentInitiationResult(
-         intention.Id,
-         intention.IntentionOrderId.ToString(),
-         intention.ClientSecret,
-         _settings.Currency);
+            intention.Id,
+            intention.IntentionOrderId.ToString(),
+            intention.ClientSecret,
+            _settings.Currency,
+            paymentUrl);
+    }
+
+    public async Task<PaymentRefundResult> RefundPaymentAsync(
+        Payment payment,
+        decimal? amount = null,
+        CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(payment);
+
+        if (string.IsNullOrWhiteSpace(payment.ProviderTransactionId))
+        {
+            throw new InvalidOperationException(
+                "Cannot refund a payment without a recorded provider transaction ID.");
+        }
+
+        var refundAmount = amount ?? payment.Amount;
+
+        if (refundAmount <= 0)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(amount),
+                "Refund amount must be greater than zero.");
+        }
+
+        if (refundAmount > payment.Amount)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(amount),
+                "Refund amount cannot exceed the original payment amount.");
+        }
+
+        var amountCents = ToMinorUnits(refundAmount);
+
+        using var message = new HttpRequestMessage(
+            HttpMethod.Post,
+            "api/acceptance/void_refund/refund");
+
+        message.Headers.Authorization =
+            new AuthenticationHeaderValue("Token", _settings.SecretKey);
+
+        message.Content = JsonContent.Create(new
+        {
+            transaction_id = payment.ProviderTransactionId,
+            amount_cents = amountCents
+        });
+
+        using var response = await _httpClient.SendAsync(message, ct);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorBody = await response.Content.ReadAsStringAsync(ct);
+            throw new InvalidOperationException(
+                $"Paymob refund failed with HTTP status {(int)response.StatusCode}: {errorBody}");
+        }
+
+        var doc = await response.Content.ReadFromJsonAsync<JsonDocument>(cancellationToken: ct);
+
+        if (doc is null)
+        {
+            throw new InvalidOperationException("Paymob returned an empty refund response.");
+        }
+
+        using var _ = doc;
+        var root = doc.RootElement;
+
+        var refundTxnId = string.Empty;
+        if (root.TryGetProperty("id", out var idProp))
+        {
+            refundTxnId = idProp.ValueKind == JsonValueKind.Number
+                ? idProp.GetInt64().ToString()
+                : idProp.GetString() ?? string.Empty;
+        }
+
+        return new PaymentRefundResult(
+            refundTxnId,
+            refundAmount,
+            payment.Currency);
     }
 
     private static int ToMinorUnits(decimal amount)

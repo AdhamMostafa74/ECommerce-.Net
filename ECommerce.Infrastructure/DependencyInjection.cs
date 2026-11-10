@@ -17,6 +17,8 @@ using ECommerce.Infrastructure.Presistence.Queries;
 using ECommerce.Infrastructure.Presistence.Repositories;
 using ECommerce.Infrastructure.Presistence.Services.CloudinaryServices;
 using ECommerce.Infrastructure.Presistence.Services.Paymob;
+using ECommerce.Infrastructure.Presistence.Services.Paymob.Models;
+using ECommerce.Infrastructure.Presistence.BackgroundServices;
 using ECommerce.Infrastructure.Services.Cloudinary;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -195,6 +197,8 @@ public static class DependencyInjection
         services.AddScoped<
             IIdentityService,
             IdentityService>();
+
+        services.AddHostedService<AbandonedOrderCleanupBackgroundService>();
 
         return services;
     }

@@ -9,4 +9,9 @@ public interface IPaymentService
         Order order,
         string customerEmail,
         CancellationToken ct = default);
+
+    Task<PaymentRefundResult> RefundPaymentAsync(
+        Payment payment,
+        decimal? amount = null,
+        CancellationToken ct = default);
 }

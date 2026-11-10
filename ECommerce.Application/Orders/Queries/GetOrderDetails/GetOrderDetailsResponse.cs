@@ -5,6 +5,7 @@ namespace ECommerce.Application.Orders.Queries.GetOrderDetails;
 public sealed record GetOrderDetailsResponse(
     Guid OrderId,
     OrderStatus Status,
+    PaymentStatus PaymentStatus,
     decimal TotalPrice,
     int TotalQuantity,
     DateTimeOffset CreatedAt,

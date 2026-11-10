@@ -35,4 +35,14 @@ public static class OrderErrors
         "Order.PaymentPersistenceFailed",
         "Failed to record payment details for the order.",
         ErrorType.Failure);
+
+    public static readonly Error NotEligibleForRefund = new(
+        "Order.NotEligibleForRefund",
+        "Only paid orders with an active online payment can be refunded.",
+        ErrorType.Conflict);
+
+    public static readonly Error RefundFailed = new(
+        "Order.RefundFailed",
+        "The payment provider could not process the refund.",
+        ErrorType.Failure);
 }
